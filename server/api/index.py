@@ -10,6 +10,5 @@ CORS(app)
 def catch_all(path):
     return flask_app(request.environ, lambda x, y: None)
 
-# Vercel 서버리스 함수 핸들러
 def handler(request):
-    return app(request)
+    return app(request['body'], request['headers'])
