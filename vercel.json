@@ -1,0 +1,10 @@
+{
+	"builds": [
+		{ "src": "st/package.json", "use": "@vercel/svelte" },
+		{ "src": "st/server/api/index.py", "use": "@vercel/python" }
+	],
+	"routes": [
+		{ "src": "/api/(.*)", "dest": "st/server/api/index.py" },
+		{ "src": "/(.*)", "dest": "st/$1" }
+	]
+}
