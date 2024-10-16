@@ -7,10 +7,11 @@
 		"dev:frontend": "vite dev",
 		"dev:backend": "python server/app.py",
 		"build": "vite build",
+		"postbuild": "cp -r static .svelte-kit/output",
 		"preview": "vite preview",
 		"lint": "prettier --check . && eslint .",
-		"format": "prettier --write .",
-		"vercel-build": "vite build"
+		"vercel-build": "npm run build",
+		"format": "prettier --write ."
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",

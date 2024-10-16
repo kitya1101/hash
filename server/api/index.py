@@ -1,14 +1,13 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
-from app import app as flask_app
 
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def catch_all(path):
-    return flask_app(request.environ, lambda x, y: None)
+@app.route('/api', methods=['GET'])
+def hello():
+    return jsonify({"message": "Hello from Flask!"})
 
-def handler(request):
-    return app(request['body'], request['headers'])
+# Vercel serverless function handler
+def handler(event, context):
+    return app(event['body'], event['headers'])

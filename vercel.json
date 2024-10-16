@@ -1,24 +1,32 @@
 {
 	"version": 2,
 	"builds": [
-		{
-			"src": "package.json",
-			"use": "@vercel/static-build",
-			"config": { "distDir": ".svelte-kit/vercel" }
-		},
-		{
-			"src": "server/api/index.py",
-			"use": "@vercel/python"
-		}
+	  {
+		"src": "package.json",
+		"use": "@vercel/static-build",
+		"config": { "distDir": ".svelte-kit/output" }
+	  },
+	  {
+		"src": "server/api/index.py",
+		"use": "@vercel/python"
+	  }
 	],
 	"routes": [
-		{
-			"src": "/api/(.*)",
-			"dest": "server/api/index.py"
-		},
-		{
-			"src": "/(.*)",
-			"dest": "/"
-		}
+	  {
+		"src": "/api/(.*)",
+		"dest": "server/api/index.py"
+	  },
+	  {
+		"src": "/_app/immutable/(.*)",
+		"headers": { "cache-control": "public, immutable, max-age=31536000" },
+		"dest": "/_app/immutable/$1"
+	  },
+	  {
+		"handle": "filesystem"
+	  },
+	  {
+		"src": "/.*",
+		"dest": ".svelte-kit/output/server/index.js"
+	  }
 	]
-}
+  }
