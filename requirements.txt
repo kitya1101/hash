@@ -1,6 +1,0 @@
-flask
-flask-cors
-python-dotenv
-cachetools
-Flask-Limiter
-hikerapi
