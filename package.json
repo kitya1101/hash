@@ -11,7 +11,9 @@
 		"preview": "vite preview",
 		"vercel-build": "npm run build",
 		"format": "prettier --write .",
-		"dp": "wrangler deploy && git add . && git commit -m \"Update and deploy\" && git push"
+		"deploy:frontend": "vite build && wrangler pages deploy .svelte-kit/output",
+		"deploy:backend": "wrangler deploy",
+		"dp": "npm run deploy:backend && npm run deploy:frontend && git add . && git commit -m \"Update and deploy\" && git push"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-cloudflare": "^3.0.2",

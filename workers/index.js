@@ -1,4 +1,4 @@
-// HikerAPI 호출을 위한 함수
+// HikerAPI 호출을 위한 함수 수정
 async function fetchHashtagInfo(query, apiKey) {
 	try {
 		// 해시태그 정보 가져오기
@@ -18,7 +18,6 @@ async function fetchHashtagInfo(query, apiKey) {
 				console.error(
 					`Payment required for HikerAPI. Status: ${errorStatus}, Response: ${errorBody}`
 				);
-				// 여기서 디버그 모드 결과를 반환하여 에러 발생하지 않도록 함
 				return {
 					media_count: 12345,
 					related_hashtags: Array.from({ length: 20 }, (_, i) => `example${i + 1}`),
@@ -28,6 +27,26 @@ async function fetchHashtagInfo(query, apiKey) {
 
 			throw new Error(`HikerAPI 해시태그 정보 오류: ${errorStatus} - ${errorBody}`);
 		}
+
+		// 해시태그 정보 파싱
+		const hashtagInfo = await hashtagInfoResponse.json();
+
+		// 관련 해시태그 가져오기
+		const relatedHashtagsResponse = await fetch(
+			`https://api.hikerapi.com/v1/hashtag/related?name=${query}`,
+			{
+				headers: { 'x-access-key': apiKey }
+			}
+		);
+
+		if (!relatedHashtagsResponse.ok) {
+			// 관련 해시태그를 가져오는데 실패하면 빈 배열 반환
+			return {
+				media_count: hashtagInfo.media_count || 0,
+				related_hashtags: []
+			};
+		}
+
 		const relatedHashtags = await relatedHashtagsResponse.json();
 
 		// 결과 처리
@@ -49,8 +68,6 @@ async function fetchHashtagInfo(query, apiKey) {
 		throw error;
 	}
 }
-
-// Worker 핸들러
 export default {
 	async fetch(request, env, ctx) {
 		// CORS 헤더 설정
