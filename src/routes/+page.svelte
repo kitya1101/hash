@@ -63,7 +63,7 @@
 		relatedHashtags = [];
 		buttonDisabled = true;
 
-		console.log('🔍 검색 시작:', query);
+		console.log('검색 시작:', query);
 
 		try {
 			const apiUrl = `https://hashtag-api.kitya1101.workers.dev/api/search?query=${encodeURIComponent(query.replace('#', ''))}&debugMode=${debugMode}`;
