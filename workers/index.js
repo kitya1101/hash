@@ -1,13 +1,20 @@
-// HikerAPI 호출을 위한 함수 수정
+// RapidAPI Instagram Premium API 2023 호출을 위한 함수
 async function fetchHashtagInfo(query, apiKey) {
 	try {
-		console.log(`[로그] 해시태그 정보 가져오기 시작 - 쿼리: ${query}`);
+		// # 기호 제거
+		const cleanQuery = query.replace(/^#/, '').trim();
+		console.log(`[로그] 정제된 해시태그: ${cleanQuery}`);
 
 		// 해시태그 정보 가져오기
 		const hashtagInfoResponse = await fetch(
-			`https://api.hikerapi.com/v1/hashtag/by/name?name=${query}`,
+			`https://instagram-premium-api-2023.p.rapidapi.com/v1/hashtag/by/name?name=${encodeURIComponent(cleanQuery)}`,
 			{
-				headers: { 'x-access-key': apiKey }
+				method: 'GET',
+				headers: {
+					'X-RapidAPI-Key': apiKey,
+					'X-RapidAPI-Host': 'instagram-premium-api-2023.p.rapidapi.com',
+					Accept: 'application/json'
+				}
 			}
 		);
 
@@ -19,8 +26,10 @@ async function fetchHashtagInfo(query, apiKey) {
 			console.error(`[로그] 해시태그 정보 오류: ${errorStatus} - ${errorBody}`);
 
 			// 402 오류 처리
-			if (errorStatus === 402) {
-				console.error(`[로그] Payment required for HikerAPI. Status: ${errorStatus}`);
+			if (errorStatus === 402 || errorStatus === 429) {
+				console.error(
+					`[로그] API 사용량 한도에 도달했거나 요금제가 필요합니다. Status: ${errorStatus}`
+				);
 				return {
 					media_count: 12345,
 					related_hashtags: Array.from({ length: 20 }, (_, i) => `example${i + 1}`),
@@ -28,7 +37,7 @@ async function fetchHashtagInfo(query, apiKey) {
 				};
 			}
 
-			throw new Error(`HikerAPI 해시태그 정보 오류: ${errorStatus} - ${errorBody}`);
+			throw new Error(`Instagram Premium API 해시태그 정보 오류: ${errorStatus} - ${errorBody}`);
 		}
 
 		// 해시태그 정보 파싱
@@ -36,15 +45,21 @@ async function fetchHashtagInfo(query, apiKey) {
 		console.log(`[로그] 해시태그 정보 응답 데이터:`, hashtagInfo);
 
 		// 관련 해시태그 가져오기
-		console.log(`[로그] 관련 해시태그 가져오기 시작 - 쿼리: ${query}`);
+		console.log(`[로그] 관련 해시태그 가져오기 시작 - 쿼리: ${cleanQuery}`);
 
-		// Flask 코드와 일치하는 엔드포인트 사용 (v1/search/hashtags)
-		let relatedHashtagsResponse = await fetch(
-			`https://api.hikerapi.com/v1/search/hashtags?query=${encodeURIComponent(query)}`,
+		// 공식 문서에 맞는 정확한 파라미터명 사용
+		const relatedHashtagsResponse = await fetch(
+			`https://instagram-premium-api-2023.p.rapidapi.com/v1/search/hashtags?query=${encodeURIComponent(cleanQuery)}`,
 			{
-				headers: { 'x-access-key': apiKey }
+				method: 'GET',
+				headers: {
+					'X-RapidAPI-Key': apiKey,
+					'X-RapidAPI-Host': 'instagram-premium-api-2023.p.rapidapi.com',
+					Accept: 'application/json'
+				}
 			}
 		);
+
 		console.log(`[로그] 관련 해시태그 응답 상태: ${relatedHashtagsResponse.status}`);
 
 		if (!relatedHashtagsResponse.ok) {
@@ -54,7 +69,7 @@ async function fetchHashtagInfo(query, apiKey) {
 
 			console.log('[로그] API 로그를 Cloudflare 대시보드에서 확인하세요.');
 
-			// Flask 코드에서 사용한 원본 응답 형식 가져오기
+			// 관련 해시태그를 가져오는데 실패하면 빈 배열 반환
 			return {
 				media_count: hashtagInfo.media_count || 0,
 				related_hashtags: [],
@@ -144,18 +159,19 @@ export default {
 						related_hashtags: Array.from({ length: 20 }, (_, i) => `example${i + 1}`)
 					};
 				} else {
-					// API 키 확인
-					const HIKERAPI_KEY = env.HIKERAPI_KEY;
-					console.log(`[로그] API 키 존재 여부: ${!!HIKERAPI_KEY}`);
+					// API 키 확인 - RapidAPI 키 사용
+					const RAPIDAPI_KEY =
+						env.RAPIDAPI_KEY || '86b90e5545msh81d89fe46e5d3b4p1093d4jsnae2aa72fe381';
+					console.log(`[로그] API 키 존재 여부: ${!!RAPIDAPI_KEY}`);
 
-					if (!HIKERAPI_KEY) {
+					if (!RAPIDAPI_KEY) {
 						console.error(`[로그] API 키 누락`);
-						throw new Error('HIKERAPI_KEY is not set in environment variables');
+						throw new Error('RAPIDAPI_KEY is not set in environment variables');
 					}
 
 					// 실제 API 호출
-					console.log(`[로그] HikerAPI 호출 시작`);
-					result = await fetchHashtagInfo(query, HIKERAPI_KEY);
+					console.log(`[로그] Instagram Premium API 호출 시작`);
+					result = await fetchHashtagInfo(query, RAPIDAPI_KEY);
 				}
 
 				console.log(`[로그] 응답 반환:`, result);
