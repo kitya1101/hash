@@ -38,9 +38,9 @@ async function fetchHashtagInfo(query, apiKey) {
 		// 관련 해시태그 가져오기
 		console.log(`[로그] 관련 해시태그 가져오기 시작 - 쿼리: ${query}`);
 
-		// v2 search/hashtags 엔드포인트 사용 (공식 문서에 있는 엔드포인트)
+		// Flask 코드와 일치하는 엔드포인트 사용 (v1/search/hashtags)
 		let relatedHashtagsResponse = await fetch(
-			`https://api.hikerapi.com/v2/search/hashtags?q=${query}`,
+			`https://api.hikerapi.com/v1/search/hashtags?q=${encodeURIComponent(query)}`,
 			{
 				headers: { 'x-access-key': apiKey }
 			}
@@ -49,47 +49,18 @@ async function fetchHashtagInfo(query, apiKey) {
 		console.log(`[로그] 관련 해시태그 응답 상태: ${relatedHashtagsResponse.status}`);
 
 		if (!relatedHashtagsResponse.ok) {
-			// 여러 파라미터 이름으로 시도
-			console.log(`[로그] q 파라미터로 실패, 다른 파라미터 시도`);
-			const params = ['query', 'name', 'hashtag'];
-			let successResponse = null;
+			const errorStatus = relatedHashtagsResponse.status;
+			const errorBody = await relatedHashtagsResponse.text().catch(() => '');
+			console.error(`[로그] 관련 해시태그 오류: ${errorStatus} - ${errorBody}`);
 
-			for (const param of params) {
-				try {
-					console.log(`[로그] ${param} 파라미터로 시도`);
-					const alternativeResponse = await fetch(
-						`https://api.hikerapi.com/v2/search/hashtags?${param}=${query}`,
-						{
-							headers: { 'x-access-key': apiKey }
-						}
-					);
+			console.log('[로그] API 로그를 Cloudflare 대시보드에서 확인하세요.');
 
-					console.log(`[로그] ${param} 파라미터 응답 상태: ${alternativeResponse.status}`);
-
-					if (alternativeResponse.ok) {
-						successResponse = alternativeResponse;
-						console.log(`[로그] ${param} 파라미터로 성공`);
-						break;
-					}
-				} catch (e) {
-					console.error(`[로그] ${param} 파라미터 시도 중 오류:`, e);
-				}
-			}
-
-			if (successResponse) {
-				relatedHashtagsResponse = successResponse;
-			} else {
-				const errorStatus = relatedHashtagsResponse.status;
-				const errorBody = await relatedHashtagsResponse.text().catch(() => '');
-				console.error(`[로그] 관련 해시태그 오류: ${errorStatus} - ${errorBody}`);
-
-				// 관련 해시태그를 가져오는데 실패하면 빈 배열 반환
-				return {
-					media_count: hashtagInfo.media_count || 0,
-					related_hashtags: [],
-					error_related: `관련 해시태그 가져오기 실패: ${errorStatus}`
-				};
-			}
+			// Flask 코드에서 사용한 원본 응답 형식 가져오기
+			return {
+				media_count: hashtagInfo.media_count || 0,
+				related_hashtags: [],
+				api_error: `관련 해시태그 API 오류: ${errorStatus}`
+			};
 		}
 
 		const relatedHashtags = await relatedHashtagsResponse.json();
@@ -99,7 +70,7 @@ async function fetchHashtagInfo(query, apiKey) {
 		const mediaCount = hashtagInfo.media_count || 0;
 		let relatedHashtagsList = [];
 
-		// 응답 형식에 따라 데이터 처리
+		// Flask 코드와 동일한 처리 방식
 		if (Array.isArray(relatedHashtags)) {
 			relatedHashtagsList = relatedHashtags
 				.filter((tag) => tag && typeof tag === 'object')
