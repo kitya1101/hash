@@ -49,7 +49,7 @@
 	let currentLang;
 	let buttonDisabled = false;
 	let cooldownTimer = 0;
-	const debugMode = true;
+	const debugMode = false;
 
 	language.subscribe((value) => {
 		currentLang = value;
