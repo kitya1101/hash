@@ -67,25 +67,25 @@
 
 		try {
 			const apiUrl = `https://hashtag-api.kitya1101.workers.dev/api/search?query=${encodeURIComponent(query.replace('#', ''))}&debugMode=${debugMode}`;
-			console.log('🌐 API 요청 URL:', apiUrl);
+			console.log('API 요청 URL:', apiUrl);
 
 			const response = await fetch(apiUrl);
-			console.log('📩 응답 상태:', response.status);
+			console.log('응답 상태:', response.status);
 
 			const data = await response.json();
-			console.log('📦 응답 데이터:', data);
+			console.log('응답 데이터:', data);
 
 			if (response.ok) {
 				mediaCount = data.media_count;
 				relatedHashtags = data.related_hashtags;
-				console.log('✅ 데이터 처리 완료:', { mediaCount, relatedHashtags });
+				console.log('데이터 처리 완료:', { mediaCount, relatedHashtags });
 			} else {
 				errorKey = 'fetchError';
-				console.error('❌ API 오류:', data.error || '알 수 없는 오류');
+				console.error('API 오류:', data.error || '알 수 없는 오류');
 			}
 		} catch (err) {
 			errorKey = 'fetchError';
-			console.error('💥 예외 발생:', err);
+			console.error('예외 발생:', err);
 		} finally {
 			loading = false;
 			setTimeout(() => {
