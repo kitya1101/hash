@@ -1,13 +1,22 @@
 // HikerAPI 호출을 위한 함수 수정
 async function fetchHashtagInfo(query, apiKey) {
 	try {
-		console.log(`[로그] 해시태그 정보 가져오기 시작 - 쿼리: ${query}`);
+		// # 기호 제거
+		const cleanQuery = query.replace(/^#/, '').trim();
+		console.log(`[로그] 정제된 해시태그: ${cleanQuery}`);
 
 		// 해시태그 정보 가져오기
 		const hashtagInfoResponse = await fetch(
-			`https://api.hikerapi.com/v1/hashtag/by/name?name=${query}`,
+			`https://api.hikerapi.com/v1/hashtag/by/name?name=${encodeURIComponent(cleanQuery)}`,
 			{
-				headers: { 'x-access-key': apiKey }
+				method: 'GET',
+				headers: {
+					'x-access-key': apiKey,
+					'X-API-Key': apiKey, // 대체 헤더 시도
+					Accept: 'application/json',
+					'Content-Type': 'application/x-www-form-urlencoded',
+					'User-Agent': 'HikerAPI JavaScript Client/1.0'
+				}
 			}
 		);
 
@@ -36,15 +45,23 @@ async function fetchHashtagInfo(query, apiKey) {
 		console.log(`[로그] 해시태그 정보 응답 데이터:`, hashtagInfo);
 
 		// 관련 해시태그 가져오기
-		console.log(`[로그] 관련 해시태그 가져오기 시작 - 쿼리: ${query}`);
+		console.log(`[로그] 관련 해시태그 가져오기 시작 - 쿼리: ${cleanQuery}`);
 
-		// Flask 코드와 일치하는 엔드포인트 사용 (v1/search/hashtags)
-		let relatedHashtagsResponse = await fetch(
-			`https://api.hikerapi.com/v1/search/hashtags?query=${encodeURIComponent(query)}`,
+		// 공식 문서에 맞는 정확한 파라미터명 사용
+		const relatedHashtagsResponse = await fetch(
+			`https://api.hikerapi.com/v1/search/hashtags?query=${encodeURIComponent(cleanQuery)}`,
 			{
-				headers: { 'x-access-key': apiKey }
+				method: 'GET',
+				headers: {
+					'x-access-key': apiKey,
+					'X-API-Key': apiKey, // 대체 헤더 시도
+					Accept: 'application/json',
+					'Content-Type': 'application/x-www-form-urlencoded',
+					'User-Agent': 'HikerAPI JavaScript Client/1.0'
+				}
 			}
 		);
+
 		console.log(`[로그] 관련 해시태그 응답 상태: ${relatedHashtagsResponse.status}`);
 
 		if (!relatedHashtagsResponse.ok) {
@@ -54,7 +71,7 @@ async function fetchHashtagInfo(query, apiKey) {
 
 			console.log('[로그] API 로그를 Cloudflare 대시보드에서 확인하세요.');
 
-			// Flask 코드에서 사용한 원본 응답 형식 가져오기
+			// 관련 해시태그를 가져오는데 실패하면 빈 배열 반환
 			return {
 				media_count: hashtagInfo.media_count || 0,
 				related_hashtags: [],
