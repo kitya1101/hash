@@ -40,12 +40,11 @@ async function fetchHashtagInfo(query, apiKey) {
 
 		// Flask 코드와 일치하는 엔드포인트 사용 (v1/search/hashtags)
 		let relatedHashtagsResponse = await fetch(
-			`https://api.hikerapi.com/v1/search/hashtags?q=${encodeURIComponent(query)}`,
+			`https://api.hikerapi.com/v1/search/hashtags?query=${encodeURIComponent(query)}`,
 			{
 				headers: { 'x-access-key': apiKey }
 			}
 		);
-
 		console.log(`[로그] 관련 해시태그 응답 상태: ${relatedHashtagsResponse.status}`);
 
 		if (!relatedHashtagsResponse.ok) {
