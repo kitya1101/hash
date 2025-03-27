@@ -15,7 +15,7 @@
 			relatedHashtags: '관련 해시태그:',
 			copyHashtags: '해시태그 복사',
 			copySuccess: '복사 완료!',
-			logo: '로고'
+			logo: '해시태그'
 		},
 		en: {
 			title: 'Hashtag Searcher',
@@ -28,7 +28,7 @@
 			relatedHashtags: 'Related Hashtags:',
 			copyHashtags: 'Copy Hashtags',
 			copySuccess: 'Copy Success!',
-			logo: 'Logo'
+			logo: 'Hashtag'
 		}
 		// ... 다른 언어에 대한 번역
 	};
@@ -50,10 +50,12 @@
 	let buttonDisabled = false;
 	let cooldownTimer = 0;
 	const debugMode = false;
+	let isDarkMode = false;
 
 	language.subscribe((value) => {
 		currentLang = value;
 	});
+
 	async function searchHashtag() {
 		if (!query || buttonDisabled) return;
 		loading = true;
@@ -147,6 +149,15 @@
 		language.set(lang);
 	}
 
+	function toggleDarkMode() {
+		isDarkMode = !isDarkMode;
+		if (isDarkMode) {
+			document.body.classList.add('dark-mode');
+		} else {
+			document.body.classList.remove('dark-mode');
+		}
+	}
+
 	onMount(() => {
 		const searchInput = document.getElementById('search-input');
 		if (searchInput) {
@@ -158,410 +169,393 @@
 	$: errorMessage = errorKey ? translations[currentLang][errorKey] : null;
 </script>
 
-<main class="instagram-style">
-	<nav class="app-bar">
-		<div class="container">
-			<button class="logo" on:click={goToHome} on:keydown={goToHome} aria-label="홈 페이지로 이동">
-				{translations[currentLang].logo}
-			</button>
-			<div class="language-menu">
-				<button class="language-button">
-					{languageList.find((lang) => lang.code === currentLang).name}
-				</button>
-				<div class="language-dropdown">
-					{#each languageList as lang}
-						<button on:click={() => changeLanguage(lang.code)}>{lang.name}</button>
-					{/each}
-				</div>
-			</div>
-		</div>
-	</nav>
-	<div class="content">
-		<div class="search-wrapper">
-			<h1>{translations[currentLang].title}</h1>
-
-			<div class="search-container">
-				<div class="input-wrapper">
-					<input
-						id="search-input"
-						type="text"
-						on:input={handleInput}
-						on:keydown={handleKeyDown}
-						placeholder={translations[currentLang].placeholder}
-						autocomplete="off"
-					/>
-				</div>
+<main class={isDarkMode ? 'dark-mode' : ''}>
+	<div class="app-container">
+		<header class="app-header">
+			<div class="header-content">
 				<button
-					on:click={searchHashtag}
-					class="search-button"
-					disabled={loading || !query || buttonDisabled}
+					class="logo"
+					on:click={goToHome}
+					on:keydown={goToHome}
+					aria-label="홈 페이지로 이동"
 				>
-					{translations[currentLang].search}
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18" />
+					</svg>
+					<span>{translations[currentLang].logo}</span>
 				</button>
-			</div>
 
-			{#if loading}
-				<div class="loading-container">
-					<div class="loading-dots">
-						<div></div>
-						<div></div>
-						<div></div>
+				<div class="header-actions">
+					<button class="mode-switch" on:click={toggleDarkMode} title="Toggle Theme">
+						{#if isDarkMode}
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="20"
+								height="20"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<circle cx="12" cy="12" r="5" />
+								<path
+									d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"
+								/>
+							</svg>
+						{:else}
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="20"
+								height="20"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+							</svg>
+						{/if}
+					</button>
+
+					<div class="language-menu">
+						<button class="language-button">
+							{languageList.find((lang) => lang.code === currentLang).name}
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="16"
+								height="16"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="M6 9l6 6 6-6" />
+							</svg>
+						</button>
+						<div class="language-dropdown">
+							{#each languageList as lang}
+								<button on:click={() => changeLanguage(lang.code)}>{lang.name}</button>
+							{/each}
+						</div>
 					</div>
 				</div>
-			{:else if errorMessage}
-				<div class="error">
-					<p>{translations[currentLang].error} {errorMessage}</p>
+			</div>
+		</header>
+
+		<section class="content">
+			<div class="search-wrapper">
+				<h1>{translations[currentLang].title}</h1>
+
+				<div class="search-container">
+					<div class="input-wrapper">
+						<span class="hashtag-symbol">#</span>
+						<input
+							id="search-input"
+							type="text"
+							on:input={handleInput}
+							on:keydown={handleKeyDown}
+							placeholder={translations[currentLang].placeholder}
+							autocomplete="off"
+						/>
+						<button
+							on:click={searchHashtag}
+							class="search-button"
+							disabled={loading || !query || buttonDisabled}
+						>
+							{#if loading}
+								<div class="spinner"></div>
+							{:else}
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="20"
+									height="20"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<circle cx="11" cy="11" r="8" />
+									<path d="M21 21l-4.35-4.35" />
+								</svg>
+							{/if}
+							<span>{translations[currentLang].search}</span>
+						</button>
+					</div>
 				</div>
-			{:else if mediaCount !== null}
-				<div class="results">
-					<p class="media-count">
-						{translations[currentLang].postCount}
-						{mediaCount.toLocaleString()}
-					</p>
-					<h2>{translations[currentLang].relatedHashtags}</h2>
-					<ul class="related-hashtags">
-						{#each relatedHashtags as tag}
-							<li>#{tag}</li>
-						{/each}
-					</ul>
-					<button class="copy-button" on:click={copyHashtags}>
-						{copySuccess
-							? translations[currentLang].copySuccess
-							: translations[currentLang].copyHashtags}
-					</button>
-				</div>
-			{/if}
-		</div>
+
+				{#if loading}
+					<div class="loading-container">
+						<div class="loading-spinner"></div>
+					</div>
+				{:else if errorMessage}
+					<div class="error">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<circle cx="12" cy="12" r="10" />
+							<line x1="12" y1="8" x2="12" y2="12" />
+							<line x1="12" y1="16" x2="12.01" y2="16" />
+						</svg>
+						<p>{translations[currentLang].error} {errorMessage}</p>
+					</div>
+				{:else if mediaCount !== null}
+					<div class="results">
+						<div class="result-card">
+							<div class="result-header">
+								<h2>{translations[currentLang].postCount}</h2>
+								<span class="post-count">{mediaCount.toLocaleString()}</span>
+							</div>
+
+							<div class="result-content">
+								<h2>{translations[currentLang].relatedHashtags}</h2>
+								<ul class="related-hashtags">
+									{#each relatedHashtags as tag}
+										<li>#{tag}</li>
+									{/each}
+								</ul>
+							</div>
+
+							<div class="result-footer">
+								<button class="copy-button" on:click={copyHashtags}>
+									{#if copySuccess}
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="20"
+											height="20"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										>
+											<path d="M20 6L9 17l-5-5" />
+										</svg>
+										<span>{translations[currentLang].copySuccess}</span>
+									{:else}
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="20"
+											height="20"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										>
+											<rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+											<path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+										</svg>
+										<span>{translations[currentLang].copyHashtags}</span>
+									{/if}
+								</button>
+							</div>
+						</div>
+					</div>
+				{/if}
+			</div>
+		</section>
 	</div>
 </main>
 
 <style>
-	.loading-container {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		height: 100px;
-	}
-
-	.loading-dots {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
-
-	.loading-dots div {
-		width: 10px;
-		height: 10px;
-		margin: 0 5px;
-		background-color: #e1306c; /* Pink color */
-		border-radius: 50%;
-		animation: bounce 0.5s infinite alternate;
-	}
-
-	.loading-dots div:nth-child(2) {
-		background-color: #c13576; /* Orange color */
-		animation-delay: 0.1s;
-	}
-
-	.loading-dots div:nth-child(3) {
-		background-color: #b03ab4; /* Yellow color */
-		animation-delay: 0.2s;
-	}
-
-	@keyframes bounce {
-		to {
-			transform: translateY(-10px);
-		}
-	}
 	:global(body) {
 		margin: 0;
 		padding: 0;
-		background-color: #fafafa;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+		font-family:
+			'Inter',
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			Roboto,
+			Helvetica,
+			Arial,
+			sans-serif;
+		min-height: 100vh;
+		transition:
+			background-color 0.3s,
+			color 0.3s;
+	}
+
+	:global(body.dark-mode) {
+		--bg-color: #121212;
+		--card-bg: #1f1f1f;
+		--text-color: #f5f5f5;
+		--border-color: #333;
+		--primary-color: #7494ec;
+		--secondary-color: #4f3ff0;
+		--error-bg: rgba(220, 38, 38, 0.1);
+		--error-color: #f87171;
+		--input-bg: #2a2a2a;
+		--hashtag-color: #888;
+		--placeholder-color: #888;
+		--icon-color: #eee;
+		--tag-bg: #333;
+		--tag-color: #eee;
+		--header-bg: #1a1a1a;
+		--dropdown-bg: #2a2a2a;
+		--hover-bg: #333;
+	}
+
+	main {
+		--bg-color: #f9f9f9;
+		--card-bg: #ffffff;
+		--text-color: #333;
+		--border-color: #e0e0e0;
+		--primary-color: #4267b2;
+		--secondary-color: #4f3ff0;
+		--error-bg: rgba(220, 38, 38, 0.1);
+		--error-color: #dc2626;
+		--input-bg: #fff;
+		--hashtag-color: #777;
+		--placeholder-color: #888;
+		--icon-color: #555;
+		--tag-bg: #f0f2f5;
+		--tag-color: #333;
+		--header-bg: #fff;
+		--dropdown-bg: #fff;
+		--hover-bg: #f5f5f5;
+
+		background-color: var(--bg-color);
+		color: var(--text-color);
 		min-height: 100vh;
 		display: flex;
 		flex-direction: column;
 	}
 
-	.instagram-style {
-		color: #262626;
-		flex-grow: 1;
-		display: flex;
-		flex-direction: column;
+	main.dark-mode {
+		--bg-color: #121212;
+		--card-bg: #1f1f1f;
+		--text-color: #f5f5f5;
+		--border-color: #333;
+		--primary-color: #7494ec;
+		--secondary-color: #4f3ff0;
+		--error-bg: rgba(220, 38, 38, 0.1);
+		--error-color: #f87171;
+		--input-bg: #2a2a2a;
+		--hashtag-color: #888;
+		--placeholder-color: #888;
+		--icon-color: #eee;
+		--tag-bg: #333;
+		--tag-color: #eee;
+		--header-bg: #1a1a1a;
+		--dropdown-bg: #2a2a2a;
+		--hover-bg: #333;
 	}
 
-	.app-bar {
-		background: linear-gradient(
-			45deg,
-			#405de6,
-			#5b51d8,
-			#833ab4,
-			#c13584,
-			#e1306c,
-			#fd1d1d,
-			#f56040,
-			#f77737,
-			#fcaf45,
-			#ffdc80
-		);
-		padding: 20px 0; /* 증가된 패딩 */
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	}
-
-	.app-bar .container {
+	.app-container {
+		max-width: 1280px;
 		margin: 0 auto;
-		padding: 0 20px;
+		width: 100%;
+	}
+
+	/* Header Styles */
+	.app-header {
+		background: var(--header-bg);
+		padding: 16px 24px;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		position: sticky;
+		top: 0;
+		z-index: 10;
+	}
+
+	.header-content {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 	}
 
 	.logo {
-		font-family: 'Instagram Sans', sans-serif;
-		font-size: 28px;
+		display: flex;
+		align-items: center;
+		font-size: 18px;
 		font-weight: 600;
-		color: #ffffff;
-		cursor: pointer;
+		color: var(--primary-color);
 		background: none;
 		border: none;
-		padding: 10px 0;
-		line-height: 1.2;
+		cursor: pointer;
+		transition: opacity 0.2s;
+	}
+
+	.logo svg {
+		margin-right: 10px;
+		stroke: var(--primary-color);
 	}
 
 	.logo:hover {
 		opacity: 0.8;
 	}
 
-	.content {
-		flex-grow: 1;
+	.header-actions {
 		display: flex;
-		flex-direction: column;
-		justify-content: center;
 		align-items: center;
-		padding: 40px 20px; /* 증가된 패딩 */
-		box-sizing: border-box;
+		gap: 16px;
 	}
 
-	.search-wrapper {
-		width: 100%;
-		max-width: 700px; /* 증가된 최대 너비 */
-		min-height: 200px;
-		background-color: #ffffff;
-		border-radius: 8px;
-		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-		padding: 40px; /* 증가된 패딩 */
-		box-sizing: border-box;
-	}
-
-	h1 {
-		/*풀사이즈*/
-		text-align: center;
-		color: rgb(34, 84, 131);
-		margin-bottom: 40px; /**/
-		font-size: 40px; /* 증가된 폰트 크기 */
-		font-weight: 500;
-	}
-
-	.search-container {
-		display: flex;
-		margin-bottom: 40px; /* */
-	}
-
-	.input-wrapper {
-		position: relative;
-		flex-grow: 1;
-	}
-
-	input {
-		width: 100%;
-		padding: 15px 15px 15px 45px; /* 증가된 패딩 */
-		border: 1px solid #dbdbdb;
-		border-radius: 3px 0 0 3px;
-		font-size: 18px; /* 증가된 폰트 크기 */
-		outline: none;
-		box-sizing: border-box;
-		caret-color: #262626;
-		color: #262626;
-	}
-
-	input::placeholder {
-		color: #8e8e8e;
-	}
-
-	.input-wrapper::before {
-		content: '#';
-		position: absolute;
-		left: 18px; /* 조정된 위치 */
-		top: 45%;
-		transform: translateY(-50%);
-		color: #c7c7c7;
-		font-size: 24px; /* 증가된 폰트 크기 */
-		pointer-events: none;
-	}
-	.search-button {
-		padding: 15px 25px;
-		background: #405ce6be; /* Original background color */
-		color: white;
+	.mode-switch {
+		background: none;
 		border: none;
-		border-radius: 0 3px 3px 0;
+		color: var(--icon-color);
 		cursor: pointer;
-		font-size: 18px;
-		font-weight: 600;
-		transition: background-color 0.3s;
-	}
-
-	.search-button:hover {
-		background: #5b6dec; /* Slightly lighter shade of the original color */
-	}
-
-	.search-button:disabled {
-		background-color: #b2dffc;
-		cursor: not-allowed;
-	}
-
-	.error {
-		color: #ff2a2a; /* Instagram 스타일의 빨간색 */
-		font-weight: bold;
-		padding: 10px;
-		border-radius: 5px;
-		background-color: #ffebee; /* 연한 빨간색 배경 */
-		margin-bottom: 15px;
-	}
-
-	.results {
-		background-color: #fafafa;
-		border-radius: 8px;
-		padding: 25px;
-		margin-bottom: 25px;
-	}
-
-	.results h2 {
-		color: #262626; /* Instagram 스타일의 검정색 */
-		font-size: 25px;
-		margin-bottom: 15px;
-	}
-
-	.media-count {
-		font-weight: bold;
-		font-size: 20px; /* 증가된 폰트 크기 */
-		color: #262626;
-		margin-bottom: 25px; /* 증가된 마진 */
-	}
-
-	.related-hashtags {
-		list-style-type: none;
-		padding: 0;
 		display: flex;
-		flex-wrap: wrap;
-		gap: 12px; /* 증가된 간격 */
-		margin-bottom: 25px; /* 증가된 마진 */
+		align-items: center;
+		justify-content: center;
+		padding: 8px;
+		border-radius: 50%;
+		transition: background-color 0.2s;
 	}
 
-	.related-hashtags li {
-		background-color: #efefef;
-		color: #262626;
-		padding: 10px 18px; /* 증가된 패딩 */
-		border-radius: 20px;
-		font-size: 16px; /* 증가된 폰트 크기 */
-		font-weight: 600;
-	}
-	.copy-button {
-		width: 100%;
-		background: #405ce6be; /* Pink/Yellow gradient */
-		color: white;
-		border: none;
-		border-radius: 3px;
-		padding: 15px 0;
-		cursor: pointer;
-		font-size: 18px;
-		font-weight: 600;
-		transition: background-color 0.3s;
+	.mode-switch:hover {
+		background-color: var(--hover-bg);
 	}
 
-	.copy-button:hover {
-		background: #5b6dec; /* Adjusted hover gradient */
-	}
-
-	input {
-		padding-left: 37px; /* 패딩 조정 */
-	}
-
-	@media (max-width: 768px) {
-		/* 브레이크포인트를 768px로 변경 */
-		.search-wrapper {
-			padding: 25px;
-			max-width: 100%;
-		}
-
-		h1 {
-			font-size: 35px;
-		}
-
-		.search-container {
-			flex-direction: column;
-		}
-
-		.input-wrapper,
-		.search-button {
-			width: 100%;
-		}
-
-		input,
-		.search-button {
-			border-radius: 3px;
-			font-size: 16px;
-			padding: 12px 15px;
-		}
-
-		.input-wrapper::before {
-			font-size: 20px;
-			top: 48%;
-			left: 15px;
-		}
-		input {
-			font-size: 14px; /* 모바일에서 더 작은 크기로 조정 */
-			padding: 12px 15px 12px 29px; /* 패딩 조정 */
-		}
-
-		.search-button {
-			margin-top: 10px;
-		}
-
-		.related-hashtags li {
-			font-size: 14px;
-			padding: 8px 15px;
-		}
-
-		.copy-button {
-			font-size: 16px;
-			padding: 12px 0;
-		}
-	}
 	.language-menu {
 		position: relative;
-		display: inline-block;
 	}
 
 	.language-button {
-		background: none;
-		border: none;
-		color: white;
-		cursor: pointer;
-		font-size: 20px;
-		padding: 10px;
 		display: flex;
 		align-items: center;
+		gap: 6px;
+		background: none;
+		border: none;
+		color: var(--text-color);
+		cursor: pointer;
+		font-size: 14px;
+		padding: 8px 12px;
+		border-radius: 6px;
+		transition: background-color 0.2s;
 	}
 
-	.language-button::before {
-		content: '';
-		display: inline-block;
-		width: 20px; /* Adjust the width as needed */
-		height: 20px; /* Adjust the height as needed */
-		background-image: url('/src/lib/image/lang.svg'); /* Provide the correct path to your image */
-		background-size: cover;
-		margin-right: 4px;
-		margin-top: 1px;
+	.language-button:hover {
+		background-color: var(--hover-bg);
 	}
 
 	.language-dropdown {
@@ -569,48 +563,313 @@
 		position: absolute;
 		right: 0;
 		top: 100%;
-		background-color: #ffffff;
-		border-radius: 8px; /* 드롭다운에 둥근 테두리 추가 */
-		min-width: 160px;
-		box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-		z-index: 1;
-		overflow: hidden; /* 테두리 밖으로 내용이 넘어가지 않도록 설정 */
+		background-color: var(--dropdown-bg);
+		border-radius: 8px;
+		min-width: 120px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		overflow: hidden;
+		z-index: 20;
+		margin-top: 8px;
 	}
 
 	.language-dropdown button {
-		color: black;
-		padding: 12px 16px;
-		text-decoration: none;
 		display: block;
 		width: 100%;
+		padding: 10px 16px;
 		text-align: left;
 		border: none;
 		background: none;
+		color: var(--text-color);
 		cursor: pointer;
+		font-size: 14px;
+		transition: background-color 0.2s;
 	}
 
 	.language-dropdown button:hover {
-		background-color: #f1f1f1;
+		background-color: var(--hover-bg);
 	}
 
 	.language-menu:hover .language-dropdown {
 		display: block;
 	}
 
+	/* Content Styles */
+	.content {
+		flex-grow: 1;
+		padding: 40px 20px;
+	}
+
+	.search-wrapper {
+		max-width: 700px;
+		margin: 0 auto;
+	}
+
+	h1 {
+		text-align: center;
+		font-size: 32px;
+		font-weight: 700;
+		margin-bottom: 40px;
+		color: var(--primary-color);
+	}
+
+	.search-container {
+		margin-bottom: 32px;
+	}
+
+	.input-wrapper {
+		position: relative;
+		display: flex;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		border-radius: 12px;
+		overflow: hidden;
+	}
+
+	.input-wrapper input {
+		flex-grow: 1;
+		padding: 16px 16px 16px 42px;
+		border: 1px solid var(--border-color);
+		border-right: none;
+		border-radius: 12px 0 0 12px;
+		font-size: 16px;
+		background-color: var(--input-bg);
+		color: var(--text-color);
+		transition: border-color 0.3s;
+	}
+
+	.input-wrapper input:focus {
+		outline: none;
+		border-color: var(--primary-color);
+	}
+
+	.input-wrapper input::placeholder {
+		color: var(--placeholder-color);
+	}
+
+	.hashtag-symbol {
+		position: absolute;
+		left: 16px;
+		top: 50%;
+		transform: translateY(-50%);
+		color: var(--hashtag-color);
+		font-size: 18px;
+		pointer-events: none;
+	}
+
+	.search-button {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 0 24px;
+		background-color: var(--primary-color);
+		color: white;
+		border: none;
+		border-radius: 0 12px 12px 0;
+		font-size: 16px;
+		font-weight: 500;
+		cursor: pointer;
+		transition: background-color 0.3s;
+	}
+
+	.search-button:hover {
+		background-color: var(--secondary-color);
+	}
+
+	.search-button:disabled {
+		background-color: #ccc;
+		cursor: not-allowed;
+	}
+
+	.spinner {
+		width: 20px;
+		height: 20px;
+		border: 2px solid rgba(255, 255, 255, 0.3);
+		border-radius: 50%;
+		border-top-color: white;
+		animation: spin 0.8s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	/* Loading Styles */
+	.loading-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100px;
+	}
+
+	.loading-spinner {
+		width: 40px;
+		height: 40px;
+		border: 3px solid rgba(0, 0, 0, 0.1);
+		border-radius: 50%;
+		border-top-color: var(--primary-color);
+		animation: spin 1s linear infinite;
+	}
+
+	/* Error Styles */
+	.error {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 16px;
+		background-color: var(--error-bg);
+		border-radius: 8px;
+		color: var(--error-color);
+		margin-bottom: 24px;
+	}
+
+	.error svg {
+		stroke: var(--error-color);
+		flex-shrink: 0;
+	}
+
+	.error p {
+		margin: 0;
+		font-size: 14px;
+	}
+
+	/* Results Styles */
+	.results {
+		padding: 20px 0;
+	}
+
+	.result-card {
+		background-color: var(--card-bg);
+		border-radius: 12px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		overflow: hidden;
+	}
+
+	.result-header {
+		padding: 20px;
+		background-color: var(--primary-color);
+		color: white;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.result-header h2 {
+		font-size: 18px;
+		font-weight: 600;
+		margin: 0;
+	}
+
+	.post-count {
+		font-size: 24px;
+		font-weight: 700;
+	}
+
+	.result-content {
+		padding: 20px;
+	}
+
+	.result-content h2 {
+		font-size: 18px;
+		font-weight: 600;
+		margin: 0 0 16px 0;
+		color: var(--text-color);
+	}
+
+	.related-hashtags {
+		list-style-type: none;
+		padding: 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		margin: 0 0 20px 0;
+	}
+
+	.related-hashtags li {
+		background-color: var(--tag-bg);
+		color: var(--tag-color);
+		padding: 8px 16px;
+		border-radius: 30px;
+		font-size: 14px;
+		font-weight: 500;
+		transition:
+			transform 0.2s,
+			box-shadow 0.2s;
+	}
+
+	.related-hashtags li:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	}
+
+	.result-footer {
+		padding: 16px 20px;
+		border-top: 1px solid var(--border-color);
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.copy-button {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 10px 20px;
+		background-color: var(--primary-color);
+		color: white;
+		border: none;
+		border-radius: 8px;
+		font-size: 14px;
+		font-weight: 500;
+		cursor: pointer;
+		transition: background-color 0.3s;
+	}
+
+	.copy-button:hover {
+		background-color: var(--secondary-color);
+	}
+
+	/* Responsive Styles */
 	@media (max-width: 768px) {
-		.app-bar .container {
+		.app-header {
+			padding: 12px 16px;
+		}
+
+		h1 {
+			font-size: 28px;
+			margin-bottom: 30px;
+		}
+
+		.content {
+			padding: 30px 16px;
+		}
+
+		.input-wrapper {
+			flex-direction: column;
+			border-radius: 12px;
+		}
+
+		.input-wrapper input {
+			border-radius: 12px 12px 0 0;
+			border-right: 1px solid var(--border-color);
+			border-bottom: none;
+			padding: 14px 14px 14px 42px;
+		}
+
+		.search-button {
+			border-radius: 0 0 12px 12px;
+			padding: 14px;
+			justify-content: center;
+		}
+
+		.result-header {
 			flex-direction: column;
 			align-items: flex-start;
+			gap: 8px;
 		}
 
-		.language-menu {
-			align-self: flex-end;
-			margin-top: -49px;
-		}
-
-		.search-button:disabled {
-			background-color: #b2dffc;
-			cursor: not-allowed;
+		.related-hashtags li {
+			padding: 6px 12px;
+			font-size: 13px;
 		}
 	}
 </style>
