@@ -273,7 +273,7 @@
 		);
 		padding: 24px 0; /* 더 큰 패딩 */
 		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-		border-radius: 0 0 24px 24px; /* 하단 모서리 둥글게 */
+		border-radius: 0; /* 모서리 직선으로 변경 */
 	}
 
 	.app-bar .container {
@@ -686,7 +686,7 @@
 
 		.app-bar {
 			padding: 20px 0;
-			border-radius: 0 0 20px 20px; /* 모바일에서 약간 작게 */
+			border-radius: 0; /* 모바일에서도 직선으로 유지 */
 		}
 
 		.app-bar .container {
