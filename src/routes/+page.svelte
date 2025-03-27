@@ -15,7 +15,7 @@
 			relatedHashtags: '관련 해시태그:',
 			copyHashtags: '해시태그 복사',
 			copySuccess: '복사 완료!',
-			logo: '로고'
+			logo: 'HashTag'
 		},
 		en: {
 			title: 'Hashtag Searcher',
@@ -28,15 +28,13 @@
 			relatedHashtags: 'Related Hashtags:',
 			copyHashtags: 'Copy Hashtags',
 			copySuccess: 'Copy Success!',
-			logo: 'Logo'
+			logo: 'HashTag'
 		}
-		// ... 다른 언어에 대한 번역
 	};
 
 	const languageList = [
 		{ code: 'ko', name: '한국어' },
 		{ code: 'en', name: 'English' }
-		// ... 다른 언어 목록
 	];
 
 	let query = '';
@@ -50,10 +48,12 @@
 	let buttonDisabled = false;
 	let cooldownTimer = 0;
 	const debugMode = false;
+	let darkMode = false;
 
 	language.subscribe((value) => {
 		currentLang = value;
 	});
+
 	async function searchHashtag() {
 		if (!query || buttonDisabled) return;
 		loading = true;
@@ -147,41 +147,117 @@
 		language.set(lang);
 	}
 
+	function toggleDarkMode() {
+		darkMode = !darkMode;
+		document.body.classList.toggle('dark-mode');
+	}
+
 	onMount(() => {
 		const searchInput = document.getElementById('search-input');
 		if (searchInput) {
 			searchInput.value = '';
 			searchInput.focus();
 		}
+
+		// Check for system preference
+		const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+		if (prefersDarkMode) {
+			darkMode = true;
+			document.body.classList.add('dark-mode');
+		}
 	});
 
 	$: errorMessage = errorKey ? translations[currentLang][errorKey] : null;
 </script>
 
-<main class="instagram-style">
-	<nav class="app-bar">
-		<div class="container">
-			<button class="logo" on:click={goToHome} on:keydown={goToHome} aria-label="홈 페이지로 이동">
+<div class="app-container {darkMode ? 'dark' : ''}">
+	<header class="app-header">
+		<div class="app-header-left">
+			<span class="app-icon">#</span>
+			<p class="app-name" on:click={goToHome} on:keydown={goToHome} tabindex="0">
 				{translations[currentLang].logo}
+			</p>
+		</div>
+		<div class="app-header-right">
+			<button class="mode-switch" title="다크모드 전환" on:click={toggleDarkMode}>
+				{#if darkMode}
+					<svg
+						class="sun"
+						fill="none"
+						stroke="currentColor"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+					>
+						<circle cx="12" cy="12" r="5"></circle>
+						<line x1="12" y1="1" x2="12" y2="3"></line>
+						<line x1="12" y1="21" x2="12" y2="23"></line>
+						<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+						<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+						<line x1="1" y1="12" x2="3" y2="12"></line>
+						<line x1="21" y1="12" x2="23" y2="12"></line>
+						<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+						<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+					</svg>
+				{:else}
+					<svg
+						class="moon"
+						fill="none"
+						stroke="currentColor"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+					>
+						<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+					</svg>
+				{/if}
 			</button>
-			<div class="language-menu">
-				<button class="language-button">
+			<div class="language-dropdown">
+				<button class="language-btn">
 					{languageList.find((lang) => lang.code === currentLang).name}
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="12"
+						height="12"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<polyline points="6 9 12 15 18 9"></polyline>
+					</svg>
 				</button>
-				<div class="language-dropdown">
+				<div class="language-menu">
 					{#each languageList as lang}
-						<button on:click={() => changeLanguage(lang.code)}>{lang.name}</button>
+						<button
+							on:click={() => changeLanguage(lang.code)}
+							class={currentLang === lang.code ? 'active' : ''}
+						>
+							{lang.name}
+						</button>
 					{/each}
 				</div>
 			</div>
 		</div>
-	</nav>
-	<div class="content">
-		<div class="search-wrapper">
-			<h1>{translations[currentLang].title}</h1>
+	</header>
 
-			<div class="search-container">
-				<div class="input-wrapper">
+	<div class="app-content">
+		<div class="search-section">
+			<div class="search-header">
+				<h1>{translations[currentLang].title}</h1>
+			</div>
+
+			<div class="search-box">
+				<div class="search-wrapper">
+					<i class="hashtag-icon">#</i>
 					<input
 						id="search-input"
 						type="text"
@@ -190,14 +266,14 @@
 						placeholder={translations[currentLang].placeholder}
 						autocomplete="off"
 					/>
+					<button
+						on:click={searchHashtag}
+						class="search-button"
+						disabled={loading || !query || buttonDisabled}
+					>
+						{translations[currentLang].search}
+					</button>
 				</div>
-				<button
-					on:click={searchHashtag}
-					class="search-button"
-					disabled={loading || !query || buttonDisabled}
-				>
-					{translations[currentLang].search}
-				</button>
 			</div>
 
 			{#if loading}
@@ -209,408 +285,544 @@
 					</div>
 				</div>
 			{:else if errorMessage}
-				<div class="error">
+				<div class="error-message">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<circle cx="12" cy="12" r="10"></circle>
+						<line x1="12" y1="8" x2="12" y2="12"></line>
+						<line x1="12" y1="16" x2="12.01" y2="16"></line>
+					</svg>
 					<p>{translations[currentLang].error} {errorMessage}</p>
 				</div>
 			{:else if mediaCount !== null}
-				<div class="results">
-					<p class="media-count">
-						{translations[currentLang].postCount}
-						{mediaCount.toLocaleString()}
-					</p>
-					<h2>{translations[currentLang].relatedHashtags}</h2>
-					<ul class="related-hashtags">
-						{#each relatedHashtags as tag}
-							<li>#{tag}</li>
-						{/each}
-					</ul>
-					<button class="copy-button" on:click={copyHashtags}>
-						{copySuccess
-							? translations[currentLang].copySuccess
-							: translations[currentLang].copyHashtags}
-					</button>
+				<div class="results-container">
+					<div class="media-count-card">
+						<div class="card-icon">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+								<circle cx="8.5" cy="8.5" r="1.5"></circle>
+								<polyline points="21 15 16 10 5 21"></polyline>
+							</svg>
+						</div>
+						<div class="card-content">
+							<p class="card-label">{translations[currentLang].postCount}</p>
+							<p class="card-value">{mediaCount.toLocaleString()}</p>
+						</div>
+					</div>
+
+					<div class="hashtags-section">
+						<h2>{translations[currentLang].relatedHashtags}</h2>
+
+						<div class="hashtags-container">
+							{#each relatedHashtags as tag}
+								<div class="hashtag-item">#{tag}</div>
+							{/each}
+						</div>
+
+						<button class="copy-button" on:click={copyHashtags}>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="20"
+								height="20"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								class="copy-icon"
+							>
+								<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+								<path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+							</svg>
+							{copySuccess
+								? translations[currentLang].copySuccess
+								: translations[currentLang].copyHashtags}
+						</button>
+					</div>
 				</div>
 			{/if}
 		</div>
 	</div>
-</main>
+</div>
 
 <style>
+	:global(body) {
+		margin: 0;
+		padding: 0;
+		font-family:
+			'DM Sans',
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			Roboto,
+			Helvetica,
+			Arial,
+			sans-serif;
+		background-color: #f3f6fd;
+		min-height: 100vh;
+		transition:
+			background-color 0.3s,
+			color 0.3s;
+	}
+
+	:global(body.dark-mode) {
+		background-color: #1f1d2b;
+		color: #fff;
+	}
+
+	* {
+		box-sizing: border-box;
+	}
+
+	.app-container {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		min-height: 100vh;
+		transition: all 0.3s ease;
+	}
+
+	.app-container.dark {
+		--main-color: #fff;
+		--secondary-color: rgba(255, 255, 255, 0.8);
+		--app-background: #1f1d2b;
+		--card-background: #2c2e3f;
+		--input-background: #252836;
+		--input-border: #34364d;
+		--button-background: #6c5ecf;
+		--hashtag-background: #353746;
+		--error-background: #482935;
+		--copy-button-background: #6c5ecf;
+		--loading-dot-color: #6c5ecf;
+	}
+
+	.app-container:not(.dark) {
+		--main-color: #1f1c2e;
+		--secondary-color: #4a4a4a;
+		--app-background: #f3f6fd;
+		--card-background: #ffffff;
+		--input-background: #ffffff;
+		--input-border: #e0e0e0;
+		--button-background: #405ce6;
+		--hashtag-background: #eef0fb;
+		--error-background: #ffebee;
+		--copy-button-background: #405ce6;
+		--loading-dot-color: #405ce6;
+	}
+
+	.app-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 20px 24px;
+		background: linear-gradient(90deg, var(--button-background), var(--button-background), #a78bfa);
+		color: white;
+		position: relative;
+		box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+	}
+
+	.app-header-left {
+		display: flex;
+		align-items: center;
+	}
+
+	.app-icon {
+		width: 32px;
+		height: 32px;
+		background-color: white;
+		color: var(--button-background);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 8px;
+		font-size: 20px;
+		font-weight: bold;
+	}
+
+	.app-name {
+		color: white;
+		font-size: 22px;
+		font-weight: 600;
+		margin: 0 0 0 12px;
+		cursor: pointer;
+	}
+
+	.app-header-right {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+	}
+
+	.mode-switch {
+		background: transparent;
+		border: none;
+		color: white;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0;
+	}
+
+	.language-dropdown {
+		position: relative;
+	}
+
+	.language-btn {
+		background: rgba(255, 255, 255, 0.2);
+		border: none;
+		color: white;
+		padding: 8px 16px;
+		border-radius: 20px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 14px;
+	}
+
+	.language-menu {
+		position: absolute;
+		right: 0;
+		top: 120%;
+		background: white;
+		border-radius: 8px;
+		box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+		min-width: 120px;
+		display: none;
+		z-index: 10;
+		overflow: hidden;
+	}
+
+	.language-dropdown:hover .language-menu {
+		display: block;
+	}
+
+	.language-menu button {
+		width: 100%;
+		text-align: left;
+		padding: 8px 16px;
+		border: none;
+		background: none;
+		cursor: pointer;
+		color: var(--main-color);
+		transition: background 0.2s;
+	}
+
+	.language-menu button:hover,
+	.language-menu button.active {
+		background: #f5f5f5;
+	}
+
+	.app-content {
+		flex-grow: 1;
+		padding: 32px 20px;
+		background-color: var(--app-background);
+		display: flex;
+		justify-content: center;
+	}
+
+	.search-section {
+		width: 100%;
+		max-width: 800px;
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+	}
+
+	.search-header {
+		text-align: center;
+	}
+
+	.search-header h1 {
+		color: var(--main-color);
+		font-size: 32px;
+		font-weight: 600;
+		margin: 0 0 16px 0;
+	}
+
+	.search-box {
+		background-color: var(--card-background);
+		border-radius: 16px;
+		padding: 24px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	}
+
+	.search-wrapper {
+		position: relative;
+		display: flex;
+		align-items: center;
+	}
+
+	.hashtag-icon {
+		position: absolute;
+		left: 16px;
+		font-size: 18px;
+		color: #9e9e9e;
+		font-style: normal;
+		pointer-events: none;
+	}
+
+	input {
+		flex: 1;
+		border: 1px solid var(--input-border);
+		background-color: var(--input-background);
+		height: 50px;
+		border-radius: 25px;
+		padding: 0 24px 0 40px;
+		font-size: 16px;
+		color: var(--main-color);
+		transition:
+			border-color 0.3s,
+			box-shadow 0.3s;
+	}
+
+	input:focus {
+		outline: none;
+		border-color: var(--button-background);
+		box-shadow: 0 0 0 3px rgba(64, 92, 230, 0.1);
+	}
+
+	input::placeholder {
+		color: #9e9e9e;
+	}
+
+	.search-button {
+		margin-left: 12px;
+		background-color: var(--button-background);
+		color: white;
+		border: none;
+		height: 50px;
+		border-radius: 25px;
+		padding: 0 24px;
+		font-weight: 600;
+		font-size: 16px;
+		cursor: pointer;
+		transition: background-color 0.3s;
+	}
+
+	.search-button:hover {
+		background-color: #364fd0;
+	}
+
+	.search-button:disabled {
+		background-color: #b2b2b2;
+		cursor: not-allowed;
+	}
+
 	.loading-container {
 		display: flex;
 		justify-content: center;
-		align-items: center;
-		height: 100px;
+		padding: 32px 0;
 	}
 
 	.loading-dots {
 		display: flex;
-		justify-content: center;
 		align-items: center;
+		gap: 8px;
 	}
 
 	.loading-dots div {
 		width: 10px;
 		height: 10px;
-		margin: 0 5px;
-		background-color: #e1306c; /* Pink color */
 		border-radius: 50%;
-		animation: bounce 0.5s infinite alternate;
+		background-color: var(--loading-dot-color);
+		animation: bounce 0.6s infinite alternate;
 	}
 
 	.loading-dots div:nth-child(2) {
-		background-color: #c13576; /* Orange color */
-		animation-delay: 0.1s;
-	}
-
-	.loading-dots div:nth-child(3) {
-		background-color: #b03ab4; /* Yellow color */
 		animation-delay: 0.2s;
 	}
 
+	.loading-dots div:nth-child(3) {
+		animation-delay: 0.4s;
+	}
+
 	@keyframes bounce {
-		to {
+		0% {
+			transform: translateY(0);
+		}
+		100% {
 			transform: translateY(-10px);
 		}
 	}
-	:global(body) {
+
+	.error-message {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		background-color: var(--error-background);
+		padding: 16px 20px;
+		border-radius: 12px;
+		color: #e53935;
+		margin-top: 16px;
+	}
+
+	.error-message svg {
+		flex-shrink: 0;
+		stroke: #e53935;
+	}
+
+	.error-message p {
 		margin: 0;
-		padding: 0;
-		background-color: #fafafa;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-		min-height: 100vh;
+		font-size: 15px;
+	}
+
+	.results-container {
 		display: flex;
 		flex-direction: column;
+		gap: 24px;
 	}
 
-	.instagram-style {
-		color: #262626;
-		flex-grow: 1;
+	.media-count-card {
+		background-color: var(--card-background);
+		border-radius: 16px;
+		padding: 20px;
 		display: flex;
-		flex-direction: column;
-	}
-
-	.app-bar {
-		background: linear-gradient(
-			45deg,
-			#405de6,
-			#5b51d8,
-			#833ab4,
-			#c13584,
-			#e1306c,
-			#fd1d1d,
-			#f56040,
-			#f77737,
-			#fcaf45,
-			#ffdc80
-		);
-		padding: 20px 0; /* 증가된 패딩 */
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	}
-
-	.app-bar .container {
-		margin: 0 auto;
-		padding: 0 20px;
-		display: flex;
-		justify-content: space-between;
 		align-items: center;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 	}
 
-	.logo {
-		font-family: 'Instagram Sans', sans-serif;
-		font-size: 28px;
-		font-weight: 600;
-		color: #ffffff;
-		cursor: pointer;
-		background: none;
-		border: none;
-		padding: 10px 0;
-		line-height: 1.2;
-	}
-
-	.logo:hover {
-		opacity: 0.8;
-	}
-
-	.content {
-		flex-grow: 1;
+	.card-icon {
+		width: 48px;
+		height: 48px;
+		background-color: rgba(64, 92, 230, 0.1);
+		border-radius: 12px;
 		display: flex;
-		flex-direction: column;
+		align-items: center;
 		justify-content: center;
-		align-items: center;
-		padding: 40px 20px; /* 증가된 패딩 */
-		box-sizing: border-box;
+		margin-right: 16px;
 	}
 
-	.search-wrapper {
-		width: 100%;
-		max-width: 700px; /* 증가된 최대 너비 */
-		min-height: 200px;
-		background-color: #ffffff;
-		border-radius: 8px;
-		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-		padding: 40px; /* 증가된 패딩 */
-		box-sizing: border-box;
+	.card-icon svg {
+		color: var(--button-background);
 	}
 
-	h1 {
-		/*풀사이즈*/
-		text-align: center;
-		color: rgb(34, 84, 131);
-		margin-bottom: 40px; /**/
-		font-size: 40px; /* 증가된 폰트 크기 */
+	.card-content {
+		flex: 1;
+	}
+
+	.card-label {
+		margin: 0;
+		font-size: 14px;
+		color: var(--secondary-color);
+	}
+
+	.card-value {
+		margin: 4px 0 0 0;
+		font-size: 24px;
+		font-weight: 600;
+		color: var(--main-color);
+	}
+
+	.hashtags-section {
+		background-color: var(--card-background);
+		border-radius: 16px;
+		padding: 24px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	}
+
+	.hashtags-section h2 {
+		margin: 0 0 20px 0;
+		font-size: 18px;
+		font-weight: 600;
+		color: var(--main-color);
+	}
+
+	.hashtags-container {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 12px;
+		margin-bottom: 24px;
+	}
+
+	.hashtag-item {
+		background-color: var(--hashtag-background);
+		color: var(--main-color);
+		border-radius: 20px;
+		padding: 8px 16px;
+		font-size: 14px;
 		font-weight: 500;
 	}
 
-	.search-container {
-		display: flex;
-		margin-bottom: 40px; /* */
-	}
-
-	.input-wrapper {
-		position: relative;
-		flex-grow: 1;
-	}
-
-	input {
-		width: 100%;
-		padding: 15px 15px 15px 45px; /* 증가된 패딩 */
-		border: 1px solid #dbdbdb;
-		border-radius: 3px 0 0 3px;
-		font-size: 18px; /* 증가된 폰트 크기 */
-		outline: none;
-		box-sizing: border-box;
-		caret-color: #262626;
-		color: #262626;
-	}
-
-	input::placeholder {
-		color: #8e8e8e;
-	}
-
-	.input-wrapper::before {
-		content: '#';
-		position: absolute;
-		left: 18px; /* 조정된 위치 */
-		top: 45%;
-		transform: translateY(-50%);
-		color: #c7c7c7;
-		font-size: 24px; /* 증가된 폰트 크기 */
-		pointer-events: none;
-	}
-	.search-button {
-		padding: 15px 25px;
-		background: #405ce6be; /* Original background color */
-		color: white;
-		border: none;
-		border-radius: 0 3px 3px 0;
-		cursor: pointer;
-		font-size: 18px;
-		font-weight: 600;
-		transition: background-color 0.3s;
-	}
-
-	.search-button:hover {
-		background: #5b6dec; /* Slightly lighter shade of the original color */
-	}
-
-	.search-button:disabled {
-		background-color: #b2dffc;
-		cursor: not-allowed;
-	}
-
-	.error {
-		color: #ff2a2a; /* Instagram 스타일의 빨간색 */
-		font-weight: bold;
-		padding: 10px;
-		border-radius: 5px;
-		background-color: #ffebee; /* 연한 빨간색 배경 */
-		margin-bottom: 15px;
-	}
-
-	.results {
-		background-color: #fafafa;
-		border-radius: 8px;
-		padding: 25px;
-		margin-bottom: 25px;
-	}
-
-	.results h2 {
-		color: #262626; /* Instagram 스타일의 검정색 */
-		font-size: 25px;
-		margin-bottom: 15px;
-	}
-
-	.media-count {
-		font-weight: bold;
-		font-size: 20px; /* 증가된 폰트 크기 */
-		color: #262626;
-		margin-bottom: 25px; /* 증가된 마진 */
-	}
-
-	.related-hashtags {
-		list-style-type: none;
-		padding: 0;
-		display: flex;
-		flex-wrap: wrap;
-		gap: 12px; /* 증가된 간격 */
-		margin-bottom: 25px; /* 증가된 마진 */
-	}
-
-	.related-hashtags li {
-		background-color: #efefef;
-		color: #262626;
-		padding: 10px 18px; /* 증가된 패딩 */
-		border-radius: 20px;
-		font-size: 16px; /* 증가된 폰트 크기 */
-		font-weight: 600;
-	}
 	.copy-button {
 		width: 100%;
-		background: #405ce6be; /* Pink/Yellow gradient */
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		background-color: var(--copy-button-background);
 		color: white;
 		border: none;
-		border-radius: 3px;
-		padding: 15px 0;
-		cursor: pointer;
-		font-size: 18px;
+		height: 48px;
+		border-radius: 24px;
 		font-weight: 600;
+		cursor: pointer;
 		transition: background-color 0.3s;
 	}
 
 	.copy-button:hover {
-		background: #5b6dec; /* Adjusted hover gradient */
+		background-color: #364fd0;
 	}
 
-	input {
-		padding-left: 37px; /* 패딩 조정 */
+	.copy-icon {
+		stroke: white;
 	}
 
 	@media (max-width: 768px) {
-		/* 브레이크포인트를 768px로 변경 */
+		.app-header {
+			padding: 16px;
+		}
+
+		.search-box {
+			padding: 16px;
+		}
+
 		.search-wrapper {
-			padding: 25px;
-			max-width: 100%;
-		}
-
-		h1 {
-			font-size: 35px;
-		}
-
-		.search-container {
 			flex-direction: column;
+			gap: 12px;
 		}
 
-		.input-wrapper,
 		.search-button {
+			margin-left: 0;
 			width: 100%;
 		}
 
-		input,
-		.search-button {
-			border-radius: 3px;
-			font-size: 16px;
-			padding: 12px 15px;
+		.hashtags-container {
+			gap: 8px;
 		}
 
-		.input-wrapper::before {
+		.hashtag-item {
+			padding: 6px 12px;
+			font-size: 13px;
+		}
+
+		.media-count-card {
+			padding: 16px;
+		}
+
+		.card-value {
 			font-size: 20px;
-			top: 48%;
-			left: 15px;
-		}
-		input {
-			font-size: 14px; /* 모바일에서 더 작은 크기로 조정 */
-			padding: 12px 15px 12px 29px; /* 패딩 조정 */
-		}
-
-		.search-button {
-			margin-top: 10px;
-		}
-
-		.related-hashtags li {
-			font-size: 14px;
-			padding: 8px 15px;
-		}
-
-		.copy-button {
-			font-size: 16px;
-			padding: 12px 0;
-		}
-	}
-	.language-menu {
-		position: relative;
-		display: inline-block;
-	}
-
-	.language-button {
-		background: none;
-		border: none;
-		color: white;
-		cursor: pointer;
-		font-size: 20px;
-		padding: 10px;
-		display: flex;
-		align-items: center;
-	}
-
-	.language-button::before {
-		content: '';
-		display: inline-block;
-		width: 20px; /* Adjust the width as needed */
-		height: 20px; /* Adjust the height as needed */
-		background-image: url('/src/lib/image/lang.svg'); /* Provide the correct path to your image */
-		background-size: cover;
-		margin-right: 4px;
-		margin-top: 1px;
-	}
-
-	.language-dropdown {
-		display: none;
-		position: absolute;
-		right: 0;
-		top: 100%;
-		background-color: #ffffff;
-		border-radius: 8px; /* 드롭다운에 둥근 테두리 추가 */
-		min-width: 160px;
-		box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-		z-index: 1;
-		overflow: hidden; /* 테두리 밖으로 내용이 넘어가지 않도록 설정 */
-	}
-
-	.language-dropdown button {
-		color: black;
-		padding: 12px 16px;
-		text-decoration: none;
-		display: block;
-		width: 100%;
-		text-align: left;
-		border: none;
-		background: none;
-		cursor: pointer;
-	}
-
-	.language-dropdown button:hover {
-		background-color: #f1f1f1;
-	}
-
-	.language-menu:hover .language-dropdown {
-		display: block;
-	}
-
-	@media (max-width: 768px) {
-		.app-bar .container {
-			flex-direction: column;
-			align-items: flex-start;
-		}
-
-		.language-menu {
-			align-self: flex-end;
-			margin-top: -49px;
-		}
-
-		.search-button:disabled {
-			background-color: #b2dffc;
-			cursor: not-allowed;
 		}
 	}
 </style>
