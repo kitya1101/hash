@@ -15,7 +15,7 @@
 			relatedHashtags: '관련 해시태그:',
 			copyHashtags: '해시태그 복사',
 			copySuccess: '복사 완료!',
-			logo: '해시태그'
+			logo: '해시태그 검색기'
 		},
 		en: {
 			title: 'Hashtag Searcher',
@@ -28,7 +28,7 @@
 			relatedHashtags: 'Related Hashtags:',
 			copyHashtags: 'Copy Hashtags',
 			copySuccess: 'Copy Success!',
-			logo: 'Hashtag'
+			logo: 'Hashtag Searcher'
 		}
 		// ... 다른 언어에 대한 번역
 	};
@@ -51,6 +51,7 @@
 	let cooldownTimer = 0;
 	const debugMode = false;
 	let isDarkMode = false;
+	let sidebarVisible = false;
 
 	language.subscribe((value) => {
 		currentLang = value;
@@ -158,6 +159,10 @@
 		}
 	}
 
+	function toggleSidebar() {
+		sidebarVisible = !sidebarVisible;
+	}
+
 	onMount(() => {
 		const searchInput = document.getElementById('search-input');
 		if (searchInput) {
@@ -171,8 +176,9 @@
 
 <main class={isDarkMode ? 'dark-mode' : ''}>
 	<div class="app-container">
-		<header class="app-header">
-			<div class="header-content">
+		<!-- Sidebar -->
+		<div id="sidebar" class={sidebarVisible ? 'active' : ''}>
+			<div class="sidebar-header">
 				<button
 					class="logo"
 					on:click={goToHome}
@@ -194,9 +200,186 @@
 					</svg>
 					<span>{translations[currentLang].logo}</span>
 				</button>
+				<button class="close-sidebar" on:click={toggleSidebar}>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<line x1="18" y1="6" x2="6" y2="18"></line>
+						<line x1="6" y1="6" x2="18" y2="18"></line>
+					</svg>
+				</button>
+			</div>
 
-				<div class="header-actions">
-					<button class="mode-switch" on:click={toggleDarkMode} title="Toggle Theme">
+			<ul class="sidebar-menu">
+				<li class="active">
+					<a href="#">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+							<polyline points="9 22 9 12 15 12 15 22"></polyline>
+						</svg>
+						<span>홈</span>
+					</a>
+				</li>
+				<li>
+					<a href="#">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+						</svg>
+						<span>인기 해시태그</span>
+					</a>
+				</li>
+				<li>
+					<a href="#">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+						</svg>
+						<span>북마크</span>
+					</a>
+				</li>
+				<li>
+					<a href="#">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<circle cx="12" cy="12" r="3"></circle>
+							<path
+								d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+							></path>
+						</svg>
+						<span>설정</span>
+					</a>
+				</li>
+			</ul>
+
+			<div class="sidebar-footer">
+				<div class="language-switcher">
+					{#each languageList as lang}
+						<button
+							class={currentLang === lang.code ? 'active' : ''}
+							on:click={() => changeLanguage(lang.code)}
+						>
+							{lang.name}
+						</button>
+					{/each}
+				</div>
+
+				<button class="theme-toggle" on:click={toggleDarkMode}>
+					{#if isDarkMode}
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<circle cx="12" cy="12" r="5"></circle>
+							<line x1="12" y1="1" x2="12" y2="3"></line>
+							<line x1="12" y1="21" x2="12" y2="23"></line>
+							<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+							<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+							<line x1="1" y1="12" x2="3" y2="12"></line>
+							<line x1="21" y1="12" x2="23" y2="12"></line>
+							<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+							<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+						</svg>
+						<span>라이트 모드</span>
+					{:else}
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+						</svg>
+						<span>다크 모드</span>
+					{/if}
+				</button>
+			</div>
+		</div>
+
+		<!-- Main Content -->
+		<div id="content">
+			<!-- Header -->
+			<nav class="navbar">
+				<div class="navbar-left">
+					<button class="menu-btn" on:click={toggleSidebar}>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<line x1="3" y1="12" x2="21" y2="12"></line>
+							<line x1="3" y1="6" x2="21" y2="6"></line>
+							<line x1="3" y1="18" x2="21" y2="18"></line>
+						</svg>
+					</button>
+					<div class="logo-text">{translations[currentLang].logo}</div>
+				</div>
+
+				<div class="navbar-right">
+					<button class="action-btn theme-toggle-btn" on:click={toggleDarkMode}>
 						{#if isDarkMode}
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -209,10 +392,15 @@
 								stroke-linecap="round"
 								stroke-linejoin="round"
 							>
-								<circle cx="12" cy="12" r="5" />
-								<path
-									d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"
-								/>
+								<circle cx="12" cy="12" r="5"></circle>
+								<line x1="12" y1="1" x2="12" y2="3"></line>
+								<line x1="12" y1="21" x2="12" y2="23"></line>
+								<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+								<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+								<line x1="1" y1="12" x2="3" y2="12"></line>
+								<line x1="21" y1="12" x2="23" y2="12"></line>
+								<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+								<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
 							</svg>
 						{:else}
 							<svg
@@ -226,13 +414,13 @@
 								stroke-linecap="round"
 								stroke-linejoin="round"
 							>
-								<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+								<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
 							</svg>
 						{/if}
 					</button>
 
-					<div class="language-menu">
-						<button class="language-button">
+					<div class="language-dropdown">
+						<button class="action-btn language-btn">
 							{languageList.find((lang) => lang.code === currentLang).name}
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -245,72 +433,26 @@
 								stroke-linecap="round"
 								stroke-linejoin="round"
 							>
-								<path d="M6 9l6 6 6-6" />
+								<polyline points="6 9 12 15 18 9"></polyline>
 							</svg>
 						</button>
-						<div class="language-dropdown">
+						<div class="dropdown-menu">
 							{#each languageList as lang}
-								<button on:click={() => changeLanguage(lang.code)}>{lang.name}</button>
+								<button
+									class={currentLang === lang.code ? 'active' : ''}
+									on:click={() => changeLanguage(lang.code)}
+								>
+									{lang.name}
+								</button>
 							{/each}
 						</div>
 					</div>
-				</div>
-			</div>
-		</header>
 
-		<section class="content">
-			<div class="search-wrapper">
-				<h1>{translations[currentLang].title}</h1>
-
-				<div class="search-container">
-					<div class="input-wrapper">
-						<span class="hashtag-symbol">#</span>
-						<input
-							id="search-input"
-							type="text"
-							on:input={handleInput}
-							on:keydown={handleKeyDown}
-							placeholder={translations[currentLang].placeholder}
-							autocomplete="off"
-						/>
-						<button
-							on:click={searchHashtag}
-							class="search-button"
-							disabled={loading || !query || buttonDisabled}
-						>
-							{#if loading}
-								<div class="spinner"></div>
-							{:else}
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="20"
-									height="20"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								>
-									<circle cx="11" cy="11" r="8" />
-									<path d="M21 21l-4.35-4.35" />
-								</svg>
-							{/if}
-							<span>{translations[currentLang].search}</span>
-						</button>
-					</div>
-				</div>
-
-				{#if loading}
-					<div class="loading-container">
-						<div class="loading-spinner"></div>
-					</div>
-				{:else if errorMessage}
-					<div class="error">
+					<button class="action-btn">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
-							width="24"
-							height="24"
+							width="20"
+							height="20"
 							viewBox="0 0 24 24"
 							fill="none"
 							stroke="currentColor"
@@ -318,85 +460,211 @@
 							stroke-linecap="round"
 							stroke-linejoin="round"
 						>
-							<circle cx="12" cy="12" r="10" />
-							<line x1="12" y1="8" x2="12" y2="12" />
-							<line x1="12" y1="16" x2="12.01" y2="16" />
+							<circle cx="11" cy="11" r="8"></circle>
+							<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
 						</svg>
-						<p>{translations[currentLang].error} {errorMessage}</p>
-					</div>
-				{:else if mediaCount !== null}
-					<div class="results">
-						<div class="result-card">
-							<div class="result-header">
-								<h2>{translations[currentLang].postCount}</h2>
-								<span class="post-count">{mediaCount.toLocaleString()}</span>
-							</div>
+					</button>
 
-							<div class="result-content">
-								<h2>{translations[currentLang].relatedHashtags}</h2>
-								<ul class="related-hashtags">
-									{#each relatedHashtags as tag}
-										<li>#{tag}</li>
-									{/each}
-								</ul>
-							</div>
+					<button class="action-btn">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+							<path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+						</svg>
+						<span class="notification-badge">3</span>
+					</button>
 
-							<div class="result-footer">
-								<button class="copy-button" on:click={copyHashtags}>
-									{#if copySuccess}
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="20"
-											height="20"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											stroke-width="2"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-										>
-											<path d="M20 6L9 17l-5-5" />
-										</svg>
-										<span>{translations[currentLang].copySuccess}</span>
-									{:else}
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="20"
-											height="20"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											stroke-width="2"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-										>
-											<rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-											<path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-										</svg>
-										<span>{translations[currentLang].copyHashtags}</span>
-									{/if}
-								</button>
-							</div>
+					<button class="profile-btn">
+						<div class="avatar">
+							<img src="https://placehold.co/100" alt="Profile" />
+						</div>
+					</button>
+				</div>
+			</nav>
+
+			<!-- Main Content -->
+			<main class="main-content">
+				<div class="main-header">
+					<h1>{translations[currentLang].title}</h1>
+				</div>
+
+				<div class="search-section">
+					<div class="search-container">
+						<div class="search-input-wrapper">
+							<span class="hashtag-prefix">#</span>
+							<input
+								id="search-input"
+								type="text"
+								on:input={handleInput}
+								on:keydown={handleKeyDown}
+								placeholder={translations[currentLang].placeholder}
+								autocomplete="off"
+							/>
+							<button
+								on:click={searchHashtag}
+								class="search-button"
+								disabled={loading || !query || buttonDisabled}
+							>
+								{#if loading}
+									<div class="spinner"></div>
+								{:else}
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="20"
+										height="20"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									>
+										<circle cx="11" cy="11" r="8"></circle>
+										<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+									</svg>
+								{/if}
+								<span>{translations[currentLang].search}</span>
+							</button>
 						</div>
 					</div>
-				{/if}
-			</div>
-		</section>
+
+					{#if loading}
+						<div class="loading-container">
+							<div class="pulse-loader">
+								<div></div>
+								<div></div>
+								<div></div>
+							</div>
+						</div>
+					{:else if errorMessage}
+						<div class="error-container">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<circle cx="12" cy="12" r="10"></circle>
+								<line x1="12" y1="8" x2="12" y2="12"></line>
+								<line x1="12" y1="16" x2="12.01" y2="16"></line>
+							</svg>
+							<p>{translations[currentLang].error} {errorMessage}</p>
+						</div>
+					{:else if mediaCount !== null}
+						<div class="results-section">
+							<!-- Bento Grid Layout -->
+							<div class="bento-grid">
+								<div class="bento-item media-count-card">
+									<div class="card-content">
+										<h3>미디어 통계</h3>
+										<div class="count-box">
+											<div class="count-label">{translations[currentLang].postCount}</div>
+											<div class="count-value">{mediaCount.toLocaleString()}</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="bento-item hashtag-list-card">
+									<div class="card-content">
+										<h3>{translations[currentLang].relatedHashtags}</h3>
+										<ul class="hashtag-list">
+											{#each relatedHashtags as tag}
+												<li>
+													<span class="hashtag-icon">#</span>
+													{tag}
+												</li>
+											{/each}
+										</ul>
+										<button class="copy-button" on:click={copyHashtags}>
+											{#if copySuccess}
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													width="20"
+													height="20"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												>
+													<path d="M20 6L9 17l-5-5"></path>
+												</svg>
+												<span>{translations[currentLang].copySuccess}</span>
+											{:else}
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													width="20"
+													height="20"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												>
+													<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+													<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+												</svg>
+												<span>{translations[currentLang].copyHashtags}</span>
+											{/if}
+										</button>
+									</div>
+								</div>
+
+								<div class="bento-item search-info-card">
+									<div class="card-content">
+										<h3>검색 개요</h3>
+										<div class="search-details">
+											<div class="search-detail-item">
+												<span class="detail-label">검색 태그:</span>
+												<span class="detail-value">{query}</span>
+											</div>
+											<div class="search-detail-item">
+												<span class="detail-label">연관 태그:</span>
+												<span class="detail-value">{relatedHashtags.length}개</span>
+											</div>
+											<div class="search-detail-item">
+												<span class="detail-label">분석 시간:</span>
+												<span class="detail-value">{new Date().toLocaleTimeString()}</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					{/if}
+				</div>
+			</main>
+		</div>
 	</div>
 </main>
 
 <style>
+	/* Base Styles & Variables */
 	:global(body) {
 		margin: 0;
 		padding: 0;
 		font-family:
-			'Inter',
+			'Poppins',
 			-apple-system,
 			BlinkMacSystemFont,
 			'Segoe UI',
 			Roboto,
-			Helvetica,
-			Arial,
 			sans-serif;
 		min-height: 100vh;
 		transition:
@@ -404,278 +672,462 @@
 			color 0.3s;
 	}
 
-	:global(body.dark-mode) {
-		--bg-color: #121212;
-		--card-bg: #1f1f1f;
-		--text-color: #f5f5f5;
-		--border-color: #333;
-		--primary-color: #7494ec;
-		--secondary-color: #4f3ff0;
-		--error-bg: rgba(220, 38, 38, 0.1);
+	:root {
+		--bg-primary: #f9f9f9;
+		--bg-secondary: #ffffff;
+		--color-primary: #333333;
+		--color-secondary: #666666;
+		--color-accent: #4f3ff0;
+		--color-accent-light: #6f5fff;
+		--color-accent-gradient: linear-gradient(45deg, #4f3ff0, #7b68ee);
+		--border-color: #e0e0e0;
+		--shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+		--shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+		--shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+		--radius-sm: 8px;
+		--radius-md: 12px;
+		--radius-lg: 20px;
+		--header-height: 70px;
+		--sidebar-width: 270px;
+		--input-bg: #f5f5f5;
+		--card-bg-1: #e9e7fd;
+		--card-bg-2: #fee4cb;
+		--card-bg-3: #dbf6fd;
+		--error-color: #dc2626;
+		--error-bg: #fee2e2;
+		--hashtag-color: #555;
+		--notification-color: #fff;
+		--notification-bg: #f44336;
+	}
+
+	.dark-mode {
+		--bg-primary: #1f1d2b;
+		--bg-secondary: #252836;
+		--color-primary: #f5f5f5;
+		--color-secondary: #a0a0a0;
+		--color-accent: #6f5fff;
+		--color-accent-light: #8a7bff;
+		--color-accent-gradient: linear-gradient(45deg, #6f5fff, #8a7bff);
+		--border-color: #2d303e;
+		--shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+		--shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+		--shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+		--input-bg: #2d303e;
+		--card-bg-1: #34306f;
+		--card-bg-2: #623d20;
+		--card-bg-3: #1a4a5e;
 		--error-color: #f87171;
-		--input-bg: #2a2a2a;
-		--hashtag-color: #888;
-		--placeholder-color: #888;
-		--icon-color: #eee;
-		--tag-bg: #333;
-		--tag-color: #eee;
-		--header-bg: #1a1a1a;
-		--dropdown-bg: #2a2a2a;
-		--hover-bg: #333;
+		--error-bg: #7f1d1d;
+		--hashtag-color: #aaa;
 	}
 
 	main {
-		--bg-color: #f9f9f9;
-		--card-bg: #ffffff;
-		--text-color: #333;
-		--border-color: #e0e0e0;
-		--primary-color: #4267b2;
-		--secondary-color: #4f3ff0;
-		--error-bg: rgba(220, 38, 38, 0.1);
-		--error-color: #dc2626;
-		--input-bg: #fff;
-		--hashtag-color: #777;
-		--placeholder-color: #888;
-		--icon-color: #555;
-		--tag-bg: #f0f2f5;
-		--tag-color: #333;
-		--header-bg: #fff;
-		--dropdown-bg: #fff;
-		--hover-bg: #f5f5f5;
-
-		background-color: var(--bg-color);
-		color: var(--text-color);
+		background-color: var(--bg-primary);
+		color: var(--color-primary);
 		min-height: 100vh;
 		display: flex;
-		flex-direction: column;
-	}
-
-	main.dark-mode {
-		--bg-color: #121212;
-		--card-bg: #1f1f1f;
-		--text-color: #f5f5f5;
-		--border-color: #333;
-		--primary-color: #7494ec;
-		--secondary-color: #4f3ff0;
-		--error-bg: rgba(220, 38, 38, 0.1);
-		--error-color: #f87171;
-		--input-bg: #2a2a2a;
-		--hashtag-color: #888;
-		--placeholder-color: #888;
-		--icon-color: #eee;
-		--tag-bg: #333;
-		--tag-color: #eee;
-		--header-bg: #1a1a1a;
-		--dropdown-bg: #2a2a2a;
-		--hover-bg: #333;
 	}
 
 	.app-container {
-		max-width: 1280px;
-		margin: 0 auto;
+		display: flex;
 		width: 100%;
+		position: relative;
 	}
 
-	/* Header Styles */
-	.app-header {
-		background: var(--header-bg);
-		padding: 16px 24px;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-		position: sticky;
+	/* Sidebar Styles */
+	#sidebar {
+		width: var(--sidebar-width);
+		background-color: var(--bg-secondary);
+		height: 100vh;
+		position: fixed;
 		top: 0;
-		z-index: 10;
+		left: 0;
+		z-index: 999;
+		box-shadow: var(--shadow-md);
+		display: flex;
+		flex-direction: column;
+		transition: transform 0.3s ease;
 	}
 
-	.header-content {
+	@media (max-width: 992px) {
+		#sidebar {
+			transform: translateX(-100%);
+		}
+
+		#sidebar.active {
+			transform: translateX(0);
+		}
+	}
+
+	.sidebar-header {
 		display: flex;
+		align-items: center;
 		justify-content: space-between;
-		align-items: center;
+		padding: 20px;
+		border-bottom: 1px solid var(--border-color);
 	}
 
-	.logo {
+	.sidebar-header .logo {
 		display: flex;
 		align-items: center;
+		gap: 10px;
 		font-size: 18px;
 		font-weight: 600;
-		color: var(--primary-color);
+		color: var(--color-primary);
 		background: none;
 		border: none;
 		cursor: pointer;
-		transition: opacity 0.2s;
 	}
 
-	.logo svg {
-		margin-right: 10px;
-		stroke: var(--primary-color);
+	.sidebar-header .logo svg {
+		color: var(--color-accent);
 	}
 
-	.logo:hover {
-		opacity: 0.8;
+	.close-sidebar {
+		background: none;
+		border: none;
+		color: var(--color-secondary);
+		cursor: pointer;
+		display: none;
 	}
 
-	.header-actions {
+	@media (max-width: 992px) {
+		.close-sidebar {
+			display: block;
+		}
+	}
+
+	.sidebar-menu {
+		list-style: none;
+		padding: 20px 0;
+		margin: 0;
+		flex-grow: 1;
+	}
+
+	.sidebar-menu li {
+		margin-bottom: 5px;
+	}
+
+	.sidebar-menu li a {
 		display: flex;
 		align-items: center;
-		gap: 16px;
+		padding: 12px 20px;
+		color: var(--color-secondary);
+		text-decoration: none;
+		transition: all 0.3s;
+		border-radius: 8px;
+		margin: 0 10px;
+		gap: 12px;
 	}
 
-	.mode-switch {
-		background: none;
-		border: none;
-		color: var(--icon-color);
+	.sidebar-menu li a:hover,
+	.sidebar-menu li.active a {
+		background-color: var(--bg-primary);
+		color: var(--color-accent);
+	}
+
+	.sidebar-menu li.active a {
+		font-weight: 600;
+	}
+
+	.sidebar-menu li a svg {
+		color: currentColor;
+	}
+
+	.sidebar-footer {
+		padding: 20px;
+		border-top: 1px solid var(--border-color);
+	}
+
+	.language-switcher {
+		display: flex;
+		gap: 8px;
+		margin-bottom: 15px;
+	}
+
+	.language-switcher button {
+		flex: 1;
+		padding: 8px;
+		border: 1px solid var(--border-color);
+		background: var(--bg-primary);
+		color: var(--color-secondary);
+		border-radius: 6px;
 		cursor: pointer;
+		transition: all 0.3s;
+	}
+
+	.language-switcher button.active {
+		background: var(--color-accent);
+		color: white;
+		border-color: var(--color-accent);
+	}
+
+	.theme-toggle {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		padding: 8px;
+		width: 100%;
+		padding: 10px;
+		gap: 10px;
+		border: none;
+		background: var(--bg-primary);
+		color: var(--color-secondary);
+		border-radius: 6px;
+		cursor: pointer;
+		transition: all 0.3s;
+	}
+
+	.theme-toggle:hover {
+		background: var(--color-accent-light);
+		color: white;
+	}
+
+	/* Main Content Styles */
+	#content {
+		flex: 1;
+		margin-left: var(--sidebar-width);
+		transition: margin 0.3s ease;
+	}
+
+	@media (max-width: 992px) {
+		#content {
+			margin-left: 0;
+		}
+	}
+
+	/* Navbar Styles */
+	.navbar {
+		height: var(--header-height);
+		background-color: var(--bg-secondary);
+		box-shadow: var(--shadow-sm);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0 20px;
+		position: sticky;
+		top: 0;
+		z-index: 100;
+	}
+
+	.navbar-left {
+		display: flex;
+		align-items: center;
+		gap: 15px;
+	}
+
+	.menu-btn {
+		background: none;
+		border: none;
+		color: var(--color-primary);
+		cursor: pointer;
+		display: none;
+	}
+
+	@media (max-width: 992px) {
+		.menu-btn {
+			display: block;
+		}
+	}
+
+	.logo-text {
+		font-size: 18px;
+		font-weight: 600;
+		color: var(--color-primary);
+	}
+
+	.navbar-right {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	.action-btn {
+		background: none;
+		border: none;
+		color: var(--color-secondary);
+		cursor: pointer;
+		width: 40px;
+		height: 40px;
 		border-radius: 50%;
-		transition: background-color 0.2s;
-	}
-
-	.mode-switch:hover {
-		background-color: var(--hover-bg);
-	}
-
-	.language-menu {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.3s;
 		position: relative;
 	}
 
-	.language-button {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		background: none;
-		border: none;
-		color: var(--text-color);
-		cursor: pointer;
-		font-size: 14px;
-		padding: 8px 12px;
-		border-radius: 6px;
-		transition: background-color 0.2s;
+	.action-btn:hover {
+		background-color: var(--bg-primary);
+		color: var(--color-accent);
 	}
 
-	.language-button:hover {
-		background-color: var(--hover-bg);
+	.notification-badge {
+		position: absolute;
+		top: 0;
+		right: 0;
+		background-color: var(--notification-bg);
+		color: var(--notification-color);
+		font-size: 10px;
+		font-weight: 600;
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.language-btn {
+		display: flex;
+		align-items: center;
+		gap: 5px;
+		width: auto;
+		padding: 0 12px;
+		border-radius: 20px;
 	}
 
 	.language-dropdown {
-		display: none;
+		position: relative;
+	}
+
+	.dropdown-menu {
 		position: absolute;
+		top: 45px;
 		right: 0;
-		top: 100%;
-		background-color: var(--dropdown-bg);
-		border-radius: 8px;
-		min-width: 120px;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		background-color: var(--bg-secondary);
+		border-radius: var(--radius-sm);
+		box-shadow: var(--shadow-md);
+		width: 120px;
+		display: none;
 		overflow: hidden;
-		z-index: 20;
-		margin-top: 8px;
+		z-index: 10;
 	}
 
-	.language-dropdown button {
+	.language-dropdown:hover .dropdown-menu {
 		display: block;
+	}
+
+	.dropdown-menu button {
 		width: 100%;
-		padding: 10px 16px;
+		padding: 10px 15px;
 		text-align: left;
-		border: none;
 		background: none;
-		color: var(--text-color);
+		border: none;
+		color: var(--color-secondary);
 		cursor: pointer;
-		font-size: 14px;
-		transition: background-color 0.2s;
+		transition: all 0.3s;
 	}
 
-	.language-dropdown button:hover {
-		background-color: var(--hover-bg);
+	.dropdown-menu button:hover,
+	.dropdown-menu button.active {
+		background-color: var(--bg-primary);
+		color: var(--color-accent);
 	}
 
-	.language-menu:hover .language-dropdown {
-		display: block;
+	.profile-btn {
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0;
 	}
 
-	/* Content Styles */
-	.content {
-		flex-grow: 1;
-		padding: 40px 20px;
+	.avatar {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		overflow: hidden;
+		background-color: var(--bg-primary);
 	}
 
-	.search-wrapper {
-		max-width: 700px;
+	.avatar img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	/* Main Content Area */
+	.main-content {
+		padding: 30px;
+		max-width: 1200px;
 		margin: 0 auto;
 	}
 
-	h1 {
+	.main-header {
+		margin-bottom: 30px;
+	}
+
+	.main-header h1 {
+		font-size: 28px;
+		font-weight: 600;
+		color: var(--color-primary);
 		text-align: center;
-		font-size: 32px;
-		font-weight: 700;
+		margin: 0;
+	}
+
+	/* Search Section */
+	.search-section {
 		margin-bottom: 40px;
-		color: var(--primary-color);
 	}
 
 	.search-container {
-		margin-bottom: 32px;
+		max-width: 700px;
+		margin: 0 auto 30px;
 	}
 
-	.input-wrapper {
-		position: relative;
+	.search-input-wrapper {
 		display: flex;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-		border-radius: 12px;
+		align-items: center;
+		background-color: var(--bg-secondary);
+		border-radius: var(--radius-md);
+		box-shadow: var(--shadow-md);
 		overflow: hidden;
+		position: relative;
 	}
 
-	.input-wrapper input {
-		flex-grow: 1;
-		padding: 16px 16px 16px 42px;
-		border: 1px solid var(--border-color);
-		border-right: none;
-		border-radius: 12px 0 0 12px;
-		font-size: 16px;
-		background-color: var(--input-bg);
-		color: var(--text-color);
-		transition: border-color 0.3s;
-	}
-
-	.input-wrapper input:focus {
-		outline: none;
-		border-color: var(--primary-color);
-	}
-
-	.input-wrapper input::placeholder {
-		color: var(--placeholder-color);
-	}
-
-	.hashtag-symbol {
+	.hashtag-prefix {
 		position: absolute;
-		left: 16px;
-		top: 50%;
-		transform: translateY(-50%);
+		left: 20px;
 		color: var(--hashtag-color);
 		font-size: 18px;
-		pointer-events: none;
+		font-weight: 600;
+	}
+
+	#search-input {
+		flex-grow: 1;
+		border: none;
+		padding: 16px 16px 16px 40px;
+		font-size: 16px;
+		background-color: transparent;
+		color: var(--color-primary);
+	}
+
+	#search-input:focus {
+		outline: none;
+	}
+
+	#search-input::placeholder {
+		color: var(--color-secondary);
 	}
 
 	.search-button {
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		padding: 0 24px;
-		background-color: var(--primary-color);
-		color: white;
+		padding: 16px 24px;
 		border: none;
-		border-radius: 0 12px 12px 0;
-		font-size: 16px;
+		background: var(--color-accent-gradient);
+		color: white;
 		font-weight: 500;
 		cursor: pointer;
-		transition: background-color 0.3s;
+		transition: all 0.3s;
 	}
 
 	.search-button:hover {
-		background-color: var(--secondary-color);
+		background: var(--color-accent);
 	}
 
 	.search-button:disabled {
-		background-color: #ccc;
+		opacity: 0.7;
 		cursor: not-allowed;
 	}
 
@@ -694,182 +1146,240 @@
 		}
 	}
 
-	/* Loading Styles */
+	/* Loading Animation */
 	.loading-container {
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		height: 100px;
+		height: 200px;
 	}
 
-	.loading-spinner {
-		width: 40px;
-		height: 40px;
-		border: 3px solid rgba(0, 0, 0, 0.1);
+	.pulse-loader {
+		display: flex;
+		gap: 6px;
+	}
+
+	.pulse-loader div {
+		width: 12px;
+		height: 12px;
 		border-radius: 50%;
-		border-top-color: var(--primary-color);
-		animation: spin 1s linear infinite;
+		background-color: var(--color-accent);
+		animation: pulse 1.5s ease infinite;
 	}
 
-	/* Error Styles */
-	.error {
+	.pulse-loader div:nth-child(2) {
+		animation-delay: 0.2s;
+	}
+
+	.pulse-loader div:nth-child(3) {
+		animation-delay: 0.4s;
+	}
+
+	@keyframes pulse {
+		0%,
+		100% {
+			transform: scale(1);
+			opacity: 1;
+		}
+		50% {
+			transform: scale(1.3);
+			opacity: 0.7;
+		}
+	}
+
+	/* Error Container */
+	.error-container {
 		display: flex;
 		align-items: center;
 		gap: 12px;
 		padding: 16px;
 		background-color: var(--error-bg);
-		border-radius: 8px;
 		color: var(--error-color);
-		margin-bottom: 24px;
+		border-radius: var(--radius-md);
+		margin-bottom: 20px;
 	}
 
-	.error svg {
-		stroke: var(--error-color);
-		flex-shrink: 0;
-	}
-
-	.error p {
+	.error-container p {
 		margin: 0;
-		font-size: 14px;
 	}
 
-	/* Results Styles */
-	.results {
-		padding: 20px 0;
+	/* Results Section - Bento Grid */
+	.results-section {
+		margin-top: 40px;
 	}
 
-	.result-card {
-		background-color: var(--card-bg);
-		border-radius: 12px;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	.bento-grid {
+		display: grid;
+		grid-template-columns: repeat(12, 1fr);
+		gap: 20px;
+	}
+
+	.bento-item {
+		border-radius: var(--radius-md);
 		overflow: hidden;
+		box-shadow: var(--shadow-md);
+		transition:
+			transform 0.3s,
+			box-shadow 0.3s;
 	}
 
-	.result-header {
+	.bento-item:hover {
+		transform: translateY(-5px);
+		box-shadow: var(--shadow-lg);
+	}
+
+	.media-count-card {
+		grid-column: span 4;
+		background-color: var(--card-bg-1);
+	}
+
+	.hashtag-list-card {
+		grid-column: span 5;
+		background-color: var(--card-bg-2);
+	}
+
+	.search-info-card {
+		grid-column: span 3;
+		background-color: var(--card-bg-3);
+	}
+
+	@media (max-width: 992px) {
+		.media-count-card,
+		.hashtag-list-card,
+		.search-info-card {
+			grid-column: span 12;
+		}
+	}
+
+	.card-content {
 		padding: 20px;
-		background-color: var(--primary-color);
-		color: white;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
 	}
 
-	.result-header h2 {
+	.card-content h3 {
 		font-size: 18px;
 		font-weight: 600;
-		margin: 0;
+		margin-top: 0;
+		margin-bottom: 15px;
+		color: var(--color-primary);
 	}
 
-	.post-count {
-		font-size: 24px;
+	/* Media Count Card */
+	.count-box {
+		padding: 20px;
+		background-color: rgba(255, 255, 255, 0.2);
+		border-radius: var(--radius-sm);
+		text-align: center;
+	}
+
+	.count-label {
+		font-size: 14px;
+		margin-bottom: 10px;
+		color: var(--color-primary);
+	}
+
+	.count-value {
+		font-size: 36px;
 		font-weight: 700;
+		color: var(--color-primary);
 	}
 
-	.result-content {
-		padding: 20px;
-	}
-
-	.result-content h2 {
-		font-size: 18px;
-		font-weight: 600;
-		margin: 0 0 16px 0;
-		color: var(--text-color);
-	}
-
-	.related-hashtags {
-		list-style-type: none;
+	/* Hashtag List Card */
+	.hashtag-list {
+		list-style: none;
 		padding: 0;
+		margin: 0 0 20px 0;
 		display: flex;
 		flex-wrap: wrap;
-		gap: 10px;
-		margin: 0 0 20px 0;
+		gap: 8px;
 	}
 
-	.related-hashtags li {
-		background-color: var(--tag-bg);
-		color: var(--tag-color);
-		padding: 8px 16px;
-		border-radius: 30px;
+	.hashtag-list li {
+		padding: 8px 12px;
+		background-color: rgba(255, 255, 255, 0.2);
+		border-radius: 20px;
 		font-size: 14px;
-		font-weight: 500;
-		transition:
-			transform 0.2s,
-			box-shadow 0.2s;
-	}
-
-	.related-hashtags li:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	}
-
-	.result-footer {
-		padding: 16px 20px;
-		border-top: 1px solid var(--border-color);
 		display: flex;
-		justify-content: flex-end;
+		align-items: center;
+		gap: 4px;
+		transition: all 0.3s;
+	}
+
+	.hashtag-list li:hover {
+		background-color: rgba(255, 255, 255, 0.4);
+		transform: translateY(-2px);
+	}
+
+	.hashtag-icon {
+		color: var(--color-accent);
+		font-weight: 600;
 	}
 
 	.copy-button {
 		display: flex;
 		align-items: center;
+		justify-content: center;
 		gap: 8px;
-		padding: 10px 20px;
-		background-color: var(--primary-color);
-		color: white;
+		width: 100%;
+		padding: 10px;
+		background: rgba(0, 0, 0, 0.1);
 		border: none;
-		border-radius: 8px;
-		font-size: 14px;
+		border-radius: var(--radius-sm);
+		color: var(--color-primary);
 		font-weight: 500;
 		cursor: pointer;
-		transition: background-color 0.3s;
+		transition: all 0.3s;
 	}
 
 	.copy-button:hover {
-		background-color: var(--secondary-color);
+		background: rgba(0, 0, 0, 0.2);
 	}
 
-	/* Responsive Styles */
+	/* Search Info Card */
+	.search-details {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.search-detail-item {
+		padding: 10px;
+		background-color: rgba(255, 255, 255, 0.2);
+		border-radius: var(--radius-sm);
+	}
+
+	.detail-label {
+		font-size: 12px;
+		color: var(--color-secondary);
+		display: block;
+		margin-bottom: 4px;
+	}
+
+	.detail-value {
+		font-weight: 600;
+		color: var(--color-primary);
+	}
+
+	/* Responsive Adjustments */
 	@media (max-width: 768px) {
-		.app-header {
-			padding: 12px 16px;
+		.main-content {
+			padding: 20px 15px;
 		}
 
-		h1 {
-			font-size: 28px;
-			margin-bottom: 30px;
-		}
-
-		.content {
-			padding: 30px 16px;
-		}
-
-		.input-wrapper {
+		.search-input-wrapper {
 			flex-direction: column;
-			border-radius: 12px;
+			align-items: stretch;
 		}
 
-		.input-wrapper input {
-			border-radius: 12px 12px 0 0;
-			border-right: 1px solid var(--border-color);
-			border-bottom: none;
-			padding: 14px 14px 14px 42px;
+		#search-input {
+			width: 100%;
+			padding: 15px 15px 15px 40px;
+			border-radius: var(--radius-md) var(--radius-md) 0 0;
 		}
 
 		.search-button {
-			border-radius: 0 0 12px 12px;
-			padding: 14px;
+			border-radius: 0 0 var(--radius-md) var(--radius-md);
+			width: 100%;
 			justify-content: center;
-		}
-
-		.result-header {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 8px;
-		}
-
-		.related-hashtags li {
-			padding: 6px 12px;
-			font-size: 13px;
 		}
 	}
 </style>
