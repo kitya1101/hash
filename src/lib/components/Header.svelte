@@ -77,9 +77,9 @@
 		width: 100%;
 	}
 
-	/* 헤더 상단 부분 */
+	/* 헤더 상단 부분 - 높이 축소 */
 	.header-top {
-		padding: 20px 0;
+		padding: 12px 0;
 	}
 
 	/* 구분선 */
@@ -89,9 +89,9 @@
 		width: 100%;
 	}
 
-	/* 헤더 하단 부분 */
+	/* 헤더 하단 부분 - 높이 축소 */
 	.header-bottom {
-		padding: 15px 0;
+		padding: 10px 0;
 	}
 
 	.container {
@@ -100,19 +100,19 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		max-width: 1200px;
+		max-width: 1500px; /* 1200px에서 1500px로 수정 */
 	}
 
-	/* 로고 타이포그래피 */
+	/* 로고 타이포그래피 - 크기 축소 */
 	.logo {
 		font-family: 'Pretendard', sans-serif;
-		font-size: 32px;
+		font-size: 28px; /* 폰트 크기 축소 */
 		font-weight: 700;
 		color: #ffffff;
 		cursor: pointer;
 		background: none;
 		border: none;
-		padding: 10px 0;
+		padding: 6px 0; /* 패딩 축소 */
 		line-height: 1.2;
 		letter-spacing: -0.5px;
 	}
@@ -134,8 +134,8 @@
 		border: none;
 		color: white;
 		cursor: pointer;
-		font-size: 18px;
-		padding: 12px 18px;
+		font-size: 16px; /* 폰트 크기 축소 */
+		padding: 8px 16px; /* 패딩 축소 */
 		display: flex;
 		align-items: center;
 		border-radius: 50px;
@@ -196,19 +196,19 @@
 		display: block;
 	}
 
-	/* 서브메뉴 스타일 */
+	/* 서브메뉴 스타일 - 크기 축소 */
 	.submenu {
 		display: flex;
-		gap: 24px;
+		gap: 20px; /* 간격 축소 */
 		width: 100%;
 	}
 
 	.submenu-item {
 		color: #ffffff;
 		text-decoration: none;
-		font-size: 18px;
+		font-size: 16px; /* 폰트 크기 축소 */
 		font-weight: 500;
-		padding: 8px 16px;
+		padding: 6px 14px; /* 패딩 축소 */
 		border-radius: 50px;
 		transition: all 0.3s ease;
 		letter-spacing: -0.3px;
