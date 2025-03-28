@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
-
+	import Header from '$lib/components/Header.svelte';
 	const language = writable('ko');
 	const translations = {
 		ko: {
@@ -54,6 +54,7 @@
 	language.subscribe((value) => {
 		currentLang = value;
 	});
+
 	async function searchHashtag() {
 		if (!query || buttonDisabled) return;
 		loading = true;
@@ -134,19 +135,6 @@
 		);
 	}
 
-	function goToHome(event) {
-		if (
-			event.type === 'click' ||
-			(event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))
-		) {
-			console.log('홈 페이지로 이동');
-		}
-	}
-
-	function changeLanguage(lang) {
-		language.set(lang);
-	}
-
 	onMount(() => {
 		const searchInput = document.getElementById('search-input');
 		if (searchInput) {
@@ -159,23 +147,8 @@
 </script>
 
 <main class="instagram-style">
-	<nav class="app-bar">
-		<div class="container">
-			<button class="logo" on:click={goToHome} on:keydown={goToHome} aria-label="홈 페이지로 이동">
-				{translations[currentLang].logo}
-			</button>
-			<div class="language-menu">
-				<button class="language-button">
-					{languageList.find((lang) => lang.code === currentLang).name}
-				</button>
-				<div class="language-dropdown">
-					{#each languageList as lang}
-						<button on:click={() => changeLanguage(lang.code)}>{lang.name}</button>
-					{/each}
-				</div>
-			</div>
-		</div>
-	</nav>
+	<Header {language} {translations} {languageList} />
+
 	<div class="content">
 		<div class="search-wrapper">
 			<h1>{translations[currentLang].title}</h1>
@@ -254,55 +227,6 @@
 		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
-	}
-
-	/* 그라데이션 앱바 업데이트 - 더 부드러운 그라데이션과 높이 증가 */
-	.app-bar {
-		background: linear-gradient(
-			45deg,
-			#4e62cc,
-			#6457da,
-			#8c45c4,
-			#c13584,
-			#e1306c,
-			#fd1d1d,
-			#f56040,
-			#f77737,
-			#fcaf45,
-			#ffdc80
-		);
-		padding: 24px 0; /* 더 큰 패딩 */
-		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-		border-radius: 0; /* 모서리 직선으로 변경 */
-	}
-
-	.app-bar .container {
-		margin: 0 auto;
-		padding: 0 24px;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		max-width: 1200px; /* 최대 너비 제한 */
-	}
-
-	/* 로고 타이포그래피 업데이트 */
-	.logo {
-		font-family: 'Pretendard', sans-serif;
-		font-size: 32px;
-		font-weight: 700;
-		color: #ffffff;
-		cursor: pointer;
-		background: none;
-		border: none;
-		padding: 10px 0;
-		line-height: 1.2;
-		letter-spacing: -0.5px; /* 한국어 타이포에 맞는 자간 */
-	}
-
-	.logo:hover {
-		opacity: 0.9;
-		transform: scale(1.02); /* 살짝 확대 효과 */
-		transition: transform 0.2s ease-in-out;
 	}
 
 	.content {
@@ -560,79 +484,6 @@
 		box-shadow: 0 2px 10px rgba(64, 93, 230, 0.3);
 	}
 
-	/* 언어 메뉴 업데이트 */
-	.language-menu {
-		position: relative;
-		display: inline-block;
-	}
-
-	.language-button {
-		background: rgba(255, 255, 255, 0.15);
-		border: none;
-		color: white;
-		cursor: pointer;
-		font-size: 18px;
-		padding: 12px 18px;
-		display: flex;
-		align-items: center;
-		border-radius: 50px; /* 완전한 원형으로 */
-		backdrop-filter: blur(5px);
-		transition: all 0.3s ease;
-	}
-
-	.language-button:hover {
-		background: rgba(255, 255, 255, 0.25);
-	}
-
-	.language-button::before {
-		content: '';
-		display: inline-block;
-		width: 22px;
-		height: 22px;
-		background-image: url('/src/lib/image/lang.svg');
-		background-size: cover;
-		margin-right: 8px;
-		margin-top: 1px;
-	}
-
-	.language-dropdown {
-		display: none;
-		position: absolute;
-		right: 0;
-		top: 100%;
-		background-color: #ffffff;
-		border-radius: 18px;
-		min-width: 180px;
-		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-		z-index: 1;
-		overflow: hidden;
-		margin-top: 10px;
-	}
-
-	.language-dropdown button {
-		color: #333333;
-		padding: 14px 20px;
-		text-decoration: none;
-		display: block;
-		width: 100%;
-		text-align: left;
-		border: none;
-		background: none;
-		cursor: pointer;
-		font-size: 16px;
-		font-weight: 500;
-		transition: background-color 0.2s ease;
-		letter-spacing: -0.3px; /* 한국어 타이포에 맞는 자간 */
-	}
-
-	.language-dropdown button:hover {
-		background-color: #f5f7ff;
-	}
-
-	.language-menu:hover .language-dropdown {
-		display: block;
-	}
-
 	/* 반응형 스타일 업데이트 */
 	@media (max-width: 768px) {
 		.search-wrapper {
@@ -682,29 +533,6 @@
 			font-size: 16px;
 			padding: 16px 0;
 			border-radius: 16px; /* 모바일에서 약간 작게 */
-		}
-
-		.app-bar {
-			padding: 20px 0;
-			border-radius: 0; /* 모바일에서도 직선으로 유지 */
-		}
-
-		.app-bar .container {
-			flex-direction: row; /* 변경: 로고와 언어 선택을 같은 줄에 유지 */
-			align-items: center;
-		}
-
-		.language-menu {
-			margin-top: 0; /* 기존 -49px 제거 */
-		}
-
-		.logo {
-			font-size: 28px;
-		}
-
-		.language-button {
-			padding: 10px 15px;
-			font-size: 16px;
 		}
 	}
 </style>
