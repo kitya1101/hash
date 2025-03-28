@@ -1,31 +1,30 @@
-// RapidAPI Instagram Premium API 2023 호출을 위한 함수
+// Hashtagy API를 이용한 해시태그 정보 조회 함수
 async function fetchHashtagInfo(query, apiKey) {
 	try {
 		// # 기호 제거
 		const cleanQuery = query.replace(/^#/, '').trim();
 		console.log(`[로그] 정제된 해시태그: ${cleanQuery}`);
 
-		// 해시태그 정보 가져오기
-		const hashtagInfoResponse = await fetch(
-			`https://instagram-premium-api-2023.p.rapidapi.com/v1/hashtag/by/name?name=${encodeURIComponent(cleanQuery)}`,
+		// Hashtagy API 호출 - 하나의 엔드포인트로 모든 정보 가져오기
+		const hashtagResponse = await fetch(
+			`https://hashtagy-generate-hashtags.p.rapidapi.com/v1/insta/tags?keyword=${encodeURIComponent(cleanQuery)}&include_tags_info=true`,
 			{
 				method: 'GET',
 				headers: {
-					'X-RapidAPI-Key': apiKey,
-					'X-RapidAPI-Host': 'instagram-premium-api-2023.p.rapidapi.com',
-					Accept: 'application/json'
+					'x-rapidapi-key': apiKey,
+					'x-rapidapi-host': 'hashtagy-generate-hashtags.p.rapidapi.com'
 				}
 			}
 		);
 
-		console.log(`[로그] 해시태그 정보 응답 상태: ${hashtagInfoResponse.status}`);
+		console.log(`[로그] 해시태그 정보 응답 상태: ${hashtagResponse.status}`);
 
-		if (!hashtagInfoResponse.ok) {
-			const errorStatus = hashtagInfoResponse.status;
-			const errorBody = await hashtagInfoResponse.text().catch(() => '');
+		if (!hashtagResponse.ok) {
+			const errorStatus = hashtagResponse.status;
+			const errorBody = await hashtagResponse.text().catch(() => '');
 			console.error(`[로그] 해시태그 정보 오류: ${errorStatus} - ${errorBody}`);
 
-			// 402 오류 처리
+			// 402 또는 429 오류 처리 (API 호출 한도 등)
 			if (errorStatus === 402 || errorStatus === 429) {
 				console.error(
 					`[로그] API 사용량 한도에 도달했거나 요금제가 필요합니다. Status: ${errorStatus}`
@@ -37,65 +36,39 @@ async function fetchHashtagInfo(query, apiKey) {
 				};
 			}
 
-			throw new Error(`Instagram Premium API 해시태그 정보 오류: ${errorStatus} - ${errorBody}`);
+			throw new Error(`Hashtagy API 오류: ${errorStatus} - ${errorBody}`);
 		}
 
-		// 해시태그 정보 파싱
-		const hashtagInfo = await hashtagInfoResponse.json();
-		console.log(`[로그] 해시태그 정보 응답 데이터:`, hashtagInfo);
+		// API 응답 파싱
+		const responseData = await hashtagResponse.json();
+		console.log(`[로그] 해시태그 정보 응답 데이터:`, responseData);
 
-		// 관련 해시태그 가져오기
-		console.log(`[로그] 관련 해시태그 가져오기 시작 - 쿼리: ${cleanQuery}`);
+		// 응답 유효성 검사
+		if (
+			responseData.status !== 'ok' ||
+			!responseData.data ||
+			!Array.isArray(responseData.data.hashtags)
+		) {
+			console.error(`[로그] 유효하지 않은 API 응답:`, responseData);
+			throw new Error('유효하지 않은 API 응답');
+		}
 
-		// 공식 문서에 맞는 정확한 파라미터명 사용
-		const relatedHashtagsResponse = await fetch(
-			`https://instagram-premium-api-2023.p.rapidapi.com/v1/search/hashtags?query=${encodeURIComponent(cleanQuery)}`,
-			{
-				method: 'GET',
-				headers: {
-					'X-RapidAPI-Key': apiKey,
-					'X-RapidAPI-Host': 'instagram-premium-api-2023.p.rapidapi.com',
-					Accept: 'application/json'
-				}
-			}
+		// 결과 데이터 추출 및 가공
+		const hashtagsData = responseData.data.hashtags;
+
+		// 검색한 해시태그에 대한 정보 추출
+		const mainHashtagInfo = hashtagsData.find(
+			(tag) => tag.hashtag.toLowerCase() === cleanQuery.toLowerCase()
 		);
 
-		console.log(`[로그] 관련 해시태그 응답 상태: ${relatedHashtagsResponse.status}`);
+		// 게시물 수 (media_count) 추출
+		const mediaCount = mainHashtagInfo ? mainHashtagInfo.total_posts : 0;
 
-		if (!relatedHashtagsResponse.ok) {
-			const errorStatus = relatedHashtagsResponse.status;
-			const errorBody = await relatedHashtagsResponse.text().catch(() => '');
-			console.error(`[로그] 관련 해시태그 오류: ${errorStatus} - ${errorBody}`);
-
-			console.log('[로그] API 로그를 Cloudflare 대시보드에서 확인하세요.');
-
-			// 관련 해시태그를 가져오는데 실패하면 빈 배열 반환
-			return {
-				media_count: hashtagInfo.media_count || 0,
-				related_hashtags: [],
-				api_error: `관련 해시태그 API 오류: ${errorStatus}`
-			};
-		}
-
-		const relatedHashtags = await relatedHashtagsResponse.json();
-		console.log(`[로그] 관련 해시태그 응답 데이터:`, relatedHashtags);
-
-		// 결과 처리
-		const mediaCount = hashtagInfo.media_count || 0;
-		let relatedHashtagsList = [];
-
-		// Flask 코드와 동일한 처리 방식
-		if (Array.isArray(relatedHashtags)) {
-			relatedHashtagsList = relatedHashtags
-				.filter((tag) => tag && typeof tag === 'object')
-				.map((tag) => tag.name)
-				.filter(Boolean);
-		} else if (relatedHashtags && Array.isArray(relatedHashtags.hashtags)) {
-			relatedHashtagsList = relatedHashtags.hashtags
-				.filter((tag) => tag && typeof tag === 'object')
-				.map((tag) => tag.name)
-				.filter(Boolean);
-		}
+		// 관련 해시태그 목록 추출 (원본 해시태그 제외)
+		const relatedHashtagsList = hashtagsData
+			.filter((tag) => tag.hashtag.toLowerCase() !== cleanQuery.toLowerCase())
+			.map((tag) => tag.hashtag)
+			.filter(Boolean);
 
 		console.log(`[로그] 최종 결과:`, {
 			media_count: mediaCount,
@@ -107,7 +80,7 @@ async function fetchHashtagInfo(query, apiKey) {
 			related_hashtags: relatedHashtagsList
 		};
 	} catch (error) {
-		console.error('[로그] Error fetching hashtag info:', error);
+		console.error('[로그] 해시태그 정보 조회 중 오류 발생:', error);
 		throw error;
 	}
 }
@@ -170,7 +143,7 @@ export default {
 					}
 
 					// 실제 API 호출
-					console.log(`[로그] Instagram Premium API 호출 시작`);
+					console.log(`[로그] Hashtagy API 호출 시작`);
 					result = await fetchHashtagInfo(query, RAPIDAPI_KEY);
 				}
 

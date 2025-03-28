@@ -48,8 +48,8 @@
 	<div class="header-bottom">
 		<div class="container">
 			<nav class="submenu">
-				<a href="/" class="submenu-item active">홈</a>
-				<a href="/about" class="submenu-item">소개</a>
+				<a href="/" class="submenu-item active">AI 해시태그 생성기</a>
+				<a href="/about" class="submenu-item">해시태그 사용량 검색</a>
 				<a href="/popular" class="submenu-item">인기 해시태그</a>
 				<a href="/guide" class="submenu-item">이용 가이드</a>
 			</nav>
