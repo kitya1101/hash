@@ -227,7 +227,7 @@
 	@media (max-width: 768px) {
 		.header-top,
 		.header-bottom {
-			padding: 15px 0;
+			padding: 12px 0 10px;
 		}
 
 		.logo {
