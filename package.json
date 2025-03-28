@@ -27,5 +27,9 @@
 		"vite": "^5.0.3",
 		"wrangler": "^4.4.0"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"chart.js": "^4.4.8",
+		"svelte-chartjs": "^3.1.5"
+	}
 }

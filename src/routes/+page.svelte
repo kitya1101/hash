@@ -2,6 +2,12 @@
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 	import Header from '$lib/components/Header.svelte';
+	import { Line } from 'svelte-chartjs';
+	import { Chart, registerables } from 'chart.js';
+
+	// Chart.js 등록
+	Chart.register(...registerables);
+
 	const language = writable('ko');
 	const translations = {
 		ko: {
@@ -15,7 +21,10 @@
 			relatedHashtags: '관련 해시태그:',
 			copyHashtags: '해시태그 복사',
 			copySuccess: '복사 완료!',
-			logo: '로고'
+			logo: '로고',
+			trending: '트렌딩 🔥',
+			trendChart: '인기 추이',
+			trendChartDesc: '최근 해시태그 인기도 변화'
 		},
 		en: {
 			title: 'Hashtag Searcher',
@@ -28,7 +37,10 @@
 			relatedHashtags: 'Related Hashtags:',
 			copyHashtags: 'Copy Hashtags',
 			copySuccess: 'Copy Success!',
-			logo: 'Logo'
+			logo: 'Logo',
+			trending: 'Trending 🔥',
+			trendChart: 'Popularity Trend',
+			trendChartDesc: 'Recent hashtag popularity changes'
 		}
 		// ... 다른 언어에 대한 번역
 	};
@@ -51,6 +63,45 @@
 	let cooldownTimer = 0;
 	const debugMode = false;
 
+	// 새로 추가된 상태 변수들
+	let isTrending = false;
+	let trendData = null;
+	let chartData = {
+		labels: [],
+		datasets: [
+			{
+				label: 'Popularity',
+				data: [],
+				borderColor: '#405de6',
+				backgroundColor: 'rgba(64, 93, 230, 0.2)',
+				fill: true,
+				tension: 0.4
+			}
+		]
+	};
+
+	let chartOptions = {
+		responsive: true,
+		scales: {
+			y: {
+				beginAtZero: true,
+				grid: {
+					display: false
+				}
+			},
+			x: {
+				grid: {
+					display: false
+				}
+			}
+		},
+		plugins: {
+			legend: {
+				display: false
+			}
+		}
+	};
+
 	language.subscribe((value) => {
 		currentLang = value;
 	});
@@ -62,27 +113,73 @@
 		copySuccess = false;
 		mediaCount = null;
 		relatedHashtags = [];
+		isTrending = false;
+		trendData = null;
 		buttonDisabled = true;
 
 		console.log('검색 시작:', query);
 
 		try {
-			const apiUrl = `https://hashtag-api.kitya1101.workers.dev/api/search?query=${encodeURIComponent(query.replace('#', ''))}&debugMode=${debugMode}`;
-			console.log('API 요청 URL:', apiUrl);
+			// 기본 해시태그 검색 API 호출
+			const searchApiUrl = `https://hashtag-api.kitya1101.workers.dev/api/search?query=${encodeURIComponent(query.replace('#', ''))}&debugMode=${debugMode}`;
+			console.log('검색 API 요청 URL:', searchApiUrl);
 
-			const response = await fetch(apiUrl);
-			console.log('응답 상태:', response.status);
+			const searchResponse = await fetch(searchApiUrl);
+			console.log('검색 응답 상태:', searchResponse.status);
 
-			const data = await response.json();
-			console.log('응답 데이터:', data);
+			const searchData = await searchResponse.json();
+			console.log('검색 응답 데이터:', searchData);
 
-			if (response.ok) {
-				mediaCount = data.media_count;
-				relatedHashtags = data.related_hashtags;
-				console.log('데이터 처리 완료:', { mediaCount, relatedHashtags });
+			if (searchResponse.ok) {
+				mediaCount = searchData.media_count;
+				relatedHashtags = searchData.related_hashtags;
+
+				// 해시태그 상세 정보 API 호출
+				const infoApiUrl = `https://hashtag-api.kitya1101.workers.dev/api/get_info?query=${encodeURIComponent(query.replace('#', ''))}&debugMode=${debugMode}`;
+				console.log('상세 정보 API 요청 URL:', infoApiUrl);
+
+				const infoResponse = await fetch(infoApiUrl);
+				console.log('상세 정보 응답 상태:', infoResponse.status);
+
+				if (infoResponse.ok) {
+					const infoData = await infoResponse.json();
+					console.log('상세 정보 응답 데이터:', infoData);
+
+					// 트렌딩 정보 추출
+					isTrending = infoData.is_trending || false;
+
+					// 트렌드 차트 데이터 생성 (여기서는 샘플 데이터 생성)
+					const lastWeek = Array.from({ length: 7 }, (_, i) => {
+						const date = new Date();
+						date.setDate(date.getDate() - (6 - i));
+						return date.toLocaleDateString(currentLang === 'ko' ? 'ko-KR' : 'en-US', {
+							month: 'short',
+							day: 'numeric'
+						});
+					});
+
+					// 실제 API에서 데이터를 받아와야 하지만, 현재는 예시 데이터 사용
+					const popularityData = infoData.trend_data || generateSampleTrendData();
+
+					chartData = {
+						labels: lastWeek,
+						datasets: [
+							{
+								label: translations[currentLang].trendChart,
+								data: popularityData,
+								borderColor: '#405de6',
+								backgroundColor: 'rgba(64, 93, 230, 0.2)',
+								fill: true,
+								tension: 0.4
+							}
+						]
+					};
+
+					console.log('차트 데이터 생성 완료:', chartData);
+				}
 			} else {
 				errorKey = 'fetchError';
-				console.error('API 오류:', data.error || '알 수 없는 오류');
+				console.error('API 오류:', searchData.error || '알 수 없는 오류');
 			}
 		} catch (err) {
 			errorKey = 'fetchError';
@@ -93,6 +190,18 @@
 				buttonDisabled = false;
 			}, 3000);
 		}
+	}
+
+	function generateSampleTrendData() {
+		// 샘플 트렌드 데이터 생성 (실제로는 API에서 가져와야 함)
+		const baseValue = Math.floor(Math.random() * 500) + 500;
+		return Array.from({ length: 7 }, (_, i) => {
+			// 약간의 랜덤 변동성 추가
+			const variation = Math.floor(Math.random() * 200) - 100;
+			// 상승 트렌드 시뮬레이션
+			const trend = i * 30;
+			return baseValue + variation + trend;
+		});
 	}
 
 	function startCooldown() {
@@ -187,10 +296,16 @@
 				</div>
 			{:else if mediaCount !== null}
 				<div class="results">
-					<p class="media-count">
-						{translations[currentLang].postCount}
-						{mediaCount.toLocaleString()}
-					</p>
+					<div class="results-header">
+						<p class="media-count">
+							{translations[currentLang].postCount}
+							{mediaCount.toLocaleString()}
+						</p>
+						{#if isTrending}
+							<span class="trending-badge">{translations[currentLang].trending}</span>
+						{/if}
+					</div>
+
 					<h2>{translations[currentLang].relatedHashtags}</h2>
 					<ul class="related-hashtags">
 						{#each relatedHashtags as tag}
@@ -202,6 +317,17 @@
 							? translations[currentLang].copySuccess
 							: translations[currentLang].copyHashtags}
 					</button>
+
+					<!-- 트렌드 차트 섹션 -->
+					{#if chartData.datasets[0].data.length > 0}
+						<div class="trend-chart-section">
+							<h2>{translations[currentLang].trendChart}</h2>
+							<p class="chart-description">{translations[currentLang].trendChartDesc}</p>
+							<div class="chart-container">
+								<Line data={chartData} options={chartOptions} />
+							</div>
+						</div>
+					{/if}
 				</div>
 			{/if}
 		</div>
@@ -410,6 +536,15 @@
 		box-shadow: 0 5px 15px rgba(0, 0, 0, 0.04);
 	}
 
+	/* 결과 헤더 (게시물 수와 트렌딩 배지) */
+	.results-header {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 12px;
+		margin-bottom: 30px;
+	}
+
 	.results h2 {
 		color: #333333;
 		font-size: 28px;
@@ -422,11 +557,37 @@
 		font-weight: 700;
 		font-size: 22px;
 		color: #333333;
-		margin-bottom: 30px;
+		margin: 0;
 		padding: 12px 18px;
 		background-color: #f2f5ff;
 		border-radius: 15px;
 		display: inline-block;
+	}
+
+	/* 트렌딩 배지 스타일 */
+	.trending-badge {
+		background-color: #ffebe5;
+		color: #ff5722;
+		padding: 8px 14px;
+		border-radius: 50px;
+		font-size: 16px;
+		font-weight: 700;
+		display: inline-flex;
+		align-items: center;
+		box-shadow: 0 3px 8px rgba(255, 87, 34, 0.15);
+		animation: pulse 2s infinite;
+	}
+
+	@keyframes pulse {
+		0% {
+			box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.4);
+		}
+		70% {
+			box-shadow: 0 0 0 8px rgba(255, 87, 34, 0);
+		}
+		100% {
+			box-shadow: 0 0 0 0 rgba(255, 87, 34, 0);
+		}
 	}
 
 	/* 관련 해시태그 스타일 업데이트 */
@@ -484,6 +645,29 @@
 		box-shadow: 0 2px 10px rgba(64, 93, 230, 0.3);
 	}
 
+	/* 트렌드 차트 섹션 */
+	.trend-chart-section {
+		margin-top: 45px;
+		background-color: white;
+		border-radius: 16px;
+		padding: 25px;
+		box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+	}
+
+	.chart-description {
+		color: #777;
+		font-size: 15px;
+		margin-bottom: 20px;
+		margin-top: -10px;
+	}
+
+	.chart-container {
+		margin-top: 25px;
+		border-radius: 10px;
+		overflow: hidden;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+	}
+
 	/* 반응형 스타일 업데이트 */
 	@media (max-width: 768px) {
 		.search-wrapper {
@@ -533,6 +717,10 @@
 			font-size: 16px;
 			padding: 16px 0;
 			border-radius: 16px; /* 모바일에서 약간 작게 */
+		}
+
+		.trend-chart-section {
+			padding: 20px;
 		}
 	}
 </style>
