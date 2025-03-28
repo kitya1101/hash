@@ -100,7 +100,7 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		max-width: 1500px; /* 1200px에서 1500px로 수정 */
+		max-width: 1300px;
 	}
 
 	/* 로고 타이포그래피 - 크기 축소 */
