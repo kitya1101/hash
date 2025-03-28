@@ -24,7 +24,7 @@
 			logo: '로고',
 			trending: '트렌딩 🔥',
 			trendChart: '인기 추이',
-			trendChartDesc: '최근 해시태그 인기도 변화'
+			trendChartDesc: '최근 7일간 해시태그 인기도 변화'
 		},
 		en: {
 			title: 'Hashtag Searcher',
@@ -40,7 +40,7 @@
 			logo: 'Logo',
 			trending: 'Trending 🔥',
 			trendChart: 'Popularity Trend',
-			trendChartDesc: 'Recent hashtag popularity changes'
+			trendChartDesc: 'Hashtag popularity changes in the last 7 days'
 		}
 		// ... 다른 언어에 대한 번역
 	};
@@ -82,22 +82,66 @@
 
 	let chartOptions = {
 		responsive: true,
+		maintainAspectRatio: false,
 		scales: {
 			y: {
-				beginAtZero: true,
+				beginAtZero: false,
 				grid: {
-					display: false
+					display: true,
+					color: 'rgba(0, 0, 0, 0.05)'
+				},
+				ticks: {
+					font: {
+						family: "'Pretendard', 'Apple SD Gothic Neo', sans-serif",
+						size: 13,
+						weight: 500
+					},
+					color: '#666'
 				}
 			},
 			x: {
 				grid: {
 					display: false
+				},
+				ticks: {
+					font: {
+						family: "'Pretendard', 'Apple SD Gothic Neo', sans-serif",
+						size: 13,
+						weight: 500
+					},
+					color: '#666'
 				}
 			}
 		},
 		plugins: {
 			legend: {
 				display: false
+			},
+			tooltip: {
+				backgroundColor: 'rgba(255, 255, 255, 0.95)',
+				titleColor: '#333',
+				bodyColor: '#333',
+				bodyFont: {
+					family: "'Pretendard', 'Apple SD Gothic Neo', sans-serif",
+					weight: 600
+				},
+				titleFont: {
+					family: "'Pretendard', 'Apple SD Gothic Neo', sans-serif",
+					weight: 700
+				},
+				borderColor: 'rgba(0, 0, 0, 0.05)',
+				borderWidth: 1,
+				cornerRadius: 16,
+				padding: 16,
+				boxPadding: 6
+			}
+		},
+		elements: {
+			point: {
+				radius: 6,
+				hoverRadius: 8,
+				backgroundColor: 'white',
+				borderWidth: 3
 			}
 		}
 	};
@@ -148,7 +192,7 @@
 					// 트렌딩 정보 추출
 					isTrending = infoData.is_trending || false;
 
-					// 트렌드 차트 데이터 생성 (여기서는 샘플 데이터 생성)
+					// 트렌드 차트 데이터 생성
 					const lastWeek = Array.from({ length: 7 }, (_, i) => {
 						const date = new Date();
 						date.setDate(date.getDate() - (6 - i));
@@ -159,7 +203,7 @@
 					});
 
 					// 실제 API에서 데이터를 받아와야 하지만, 현재는 예시 데이터 사용
-					const popularityData = infoData.trend_data || generateSampleTrendData();
+					const popularityData = infoData.trend_data || [];
 
 					chartData = {
 						labels: lastWeek,
@@ -188,20 +232,8 @@
 			loading = false;
 			setTimeout(() => {
 				buttonDisabled = false;
-			}, 3000);
+			}, 1000); // 버튼 비활성화 시간 감소
 		}
-	}
-
-	function generateSampleTrendData() {
-		// 샘플 트렌드 데이터 생성 (실제로는 API에서 가져와야 함)
-		const baseValue = Math.floor(Math.random() * 500) + 500;
-		return Array.from({ length: 7 }, (_, i) => {
-			// 약간의 랜덤 변동성 추가
-			const variation = Math.floor(Math.random() * 200) - 100;
-			// 상승 트렌드 시뮬레이션
-			const trend = i * 30;
-			return baseValue + variation + trend;
-		});
 	}
 
 	function startCooldown() {
@@ -318,12 +350,12 @@
 							: translations[currentLang].copyHashtags}
 					</button>
 
-					<!-- 트렌드 차트 섹션 -->
+					<!-- 트렌드 차트 섹션 - 브루탈리즘 UI 업데이트 -->
 					{#if chartData.datasets[0].data.length > 0}
 						<div class="trend-chart-section">
 							<h2>{translations[currentLang].trendChart}</h2>
 							<p class="chart-description">{translations[currentLang].trendChartDesc}</p>
-							<div class="chart-container">
+							<div class="chart-wrapper">
 								<Line data={chartData} options={chartOptions} />
 							</div>
 						</div>
@@ -564,29 +596,30 @@
 		display: inline-block;
 	}
 
-	/* 트렌딩 배지 스타일 */
+	/* 트렌딩 배지 스타일 - 브루탈리즘 업데이트 */
 	.trending-badge {
-		background-color: #ffebe5;
-		color: #ff5722;
-		padding: 8px 14px;
-		border-radius: 50px;
+		background-color: #ff4c38;
+		color: white;
+		padding: 10px 20px;
+		border-radius: 30px;
 		font-size: 16px;
 		font-weight: 700;
 		display: inline-flex;
 		align-items: center;
-		box-shadow: 0 3px 8px rgba(255, 87, 34, 0.15);
+		box-shadow: 0 4px 12px rgba(255, 76, 56, 0.2);
 		animation: pulse 2s infinite;
+		letter-spacing: -0.5px;
 	}
 
 	@keyframes pulse {
 		0% {
-			box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.4);
+			box-shadow: 0 0 0 0 rgba(255, 76, 56, 0.4);
 		}
 		70% {
-			box-shadow: 0 0 0 8px rgba(255, 87, 34, 0);
+			box-shadow: 0 0 0 8px rgba(255, 76, 56, 0);
 		}
 		100% {
-			box-shadow: 0 0 0 0 rgba(255, 87, 34, 0);
+			box-shadow: 0 0 0 0 rgba(255, 76, 56, 0);
 		}
 	}
 
@@ -645,27 +678,37 @@
 		box-shadow: 0 2px 10px rgba(64, 93, 230, 0.3);
 	}
 
-	/* 트렌드 차트 섹션 */
+	/* 트렌드 차트 섹션 - 브루탈리즘 UI 스타일로 업데이트 */
 	.trend-chart-section {
 		margin-top: 45px;
 		background-color: white;
-		border-radius: 16px;
-		padding: 25px;
-		box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+		border-radius: 24px;
+		padding: 32px;
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04);
+		position: relative;
+		overflow: hidden;
+	}
+
+	.trend-chart-section h2 {
+		font-size: 32px;
+		margin-bottom: 12px;
+		color: #222;
 	}
 
 	.chart-description {
-		color: #777;
-		font-size: 15px;
-		margin-bottom: 20px;
-		margin-top: -10px;
+		color: #666;
+		font-size: 16px;
+		margin-bottom: 30px;
+		font-weight: 500;
+		letter-spacing: -0.3px;
 	}
 
-	.chart-container {
-		margin-top: 25px;
-		border-radius: 10px;
+	.chart-wrapper {
+		height: 300px;
+		width: 100%;
+		position: relative;
+		border-radius: 20px;
 		overflow: hidden;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 	}
 
 	/* 반응형 스타일 업데이트 */
@@ -720,7 +763,21 @@
 		}
 
 		.trend-chart-section {
-			padding: 20px;
+			padding: 24px;
+			border-radius: 20px;
+		}
+
+		.trend-chart-section h2 {
+			font-size: 26px;
+		}
+
+		.chart-description {
+			font-size: 14px;
+			margin-bottom: 25px;
+		}
+
+		.chart-wrapper {
+			height: 220px;
 		}
 	}
 </style>

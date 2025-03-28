@@ -180,7 +180,6 @@ function generateSampleTrendData() {
 		return baseValue + variation + trend;
 	});
 }
-
 export default {
 	async fetch(request, env, ctx) {
 		console.log(`[로그] 요청 받음: ${request.url}`);
@@ -220,9 +219,8 @@ export default {
 				let result;
 
 				if (debugMode) {
-					// 디버그 모드 처리
+					// 디버그 모드 처리 - 타임아웃 제거
 					console.log(`[로그] 디버그 모드 활성화`);
-					await new Promise((resolve) => setTimeout(resolve, 3000));
 					result = {
 						media_count: 12345,
 						related_hashtags: Array.from({ length: 20 }, (_, i) => `example${i + 1}`)
@@ -276,9 +274,8 @@ export default {
 				let result;
 
 				if (debugMode) {
-					// 디버그 모드 처리
+					// 디버그 모드 처리 - 타임아웃 제거
 					console.log(`[로그] 상세 정보 디버그 모드 활성화`);
-					await new Promise((resolve) => setTimeout(resolve, 2000));
 					result = {
 						is_trending: Math.random() > 0.5, // 랜덤 트렌딩 상태
 						trend_data: generateSampleTrendData()
