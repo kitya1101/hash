@@ -91,7 +91,7 @@
 
 	/* 헤더 하단 부분 - 높이 축소 */
 	.header-bottom {
-		padding: 10px 0;
+		padding: 10px 0 7px;
 	}
 
 	.container {
